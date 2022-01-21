@@ -8,6 +8,8 @@ class Team:
         self.operatives: list[Operative] = []
 
     def redraw(self):
+        # TODO: Draw team information on each side of the screen
+
         for op in self.operatives:
             op.redraw()
 

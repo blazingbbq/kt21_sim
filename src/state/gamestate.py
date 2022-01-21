@@ -1,19 +1,18 @@
 import pygame
 from .team import *
-from .terrain import *
+from board import *
 
 
 class GameState:
     def __init__(self):
         self.teams: Team = []
-        self.terrain: Terrain = Terrain()
-        # TODO: Make terrain a child of Board object
+        self.gameboard: GameBoard = GameBoard()
 
     def update(self):
         """"""
 
     def redraw(self):
-        self.terrain.redraw()
+        self.gameboard.redraw()
         for t in self.teams:
             t.redraw()
 

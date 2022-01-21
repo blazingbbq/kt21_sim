@@ -60,3 +60,5 @@ class KT21Sim:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 KT21Sim.running = False
+                pygame.quit()
+                exit()

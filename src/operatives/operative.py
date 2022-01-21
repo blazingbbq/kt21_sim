@@ -14,7 +14,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         # Sprite init
         pygame.sprite.Sprite.__init__(self)
         self.rect = pygame.Rect(100, 100, 0, 0).inflate(
-            self.datacard.physical_profile.base, self.datacard.physical_profile.base)
+            self.datacard.physical_profile.base.to_screen_size(), self.datacard.physical_profile.base.to_screen_size())
         # FIXME: Change starting position, inflate proportionaly to game board size
 
     def redraw(self):
