@@ -1,3 +1,7 @@
+import pygame
+import board.gameboard
+
+
 class Distance:
     # Distance conversions to inches
     TRIANGLE: float = 1.0
@@ -6,6 +10,9 @@ class Distance:
     PENTAGON: float = 6.0
 
     MM_TO_INCH: float = 0.04  # Assume 25mm ~= 1"
+
+    # Global tracker of pixels per inch
+    inch_size = 1
 
     def __init__(self, distance):
         self.distance = distance
@@ -21,9 +28,8 @@ class Distance:
     def __float__(self):
         return self.distance
 
-    # TODO: Add utility to convert to a number of pixels
     def to_screen_size(self):
-        return self.distance * 25  # FIXME:
+        return self.distance * self.inch_size
 
     def from_triangle(num: int):
         return Distance(Distance.TRIANGLE * num)
@@ -39,3 +45,10 @@ class Distance:
 
     def from_mm(num: int):
         return Distance(Distance.MM_TO_INCH * num)
+
+    def from_inch(num: int):
+        return Distance(num)
+
+    def update_inch_size():
+        Distance.inch_size = pygame.display.get_surface(
+        ).get_rect().height // board.gameboard.GAMEBOARD_HEIGHT

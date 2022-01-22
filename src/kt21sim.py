@@ -2,6 +2,7 @@ import pygame
 from state.gamestate import *
 from state.team import *
 from operatives import *
+from utils.distances import *
 
 START_FULLSCREEN = False
 
@@ -21,6 +22,8 @@ class KT21Sim:
             (0, 0), pygame.FULLSCREEN if START_FULLSCREEN else pygame.RESIZABLE)
         pygame.display.set_caption("KT21 Sim")
         pygame.mouse.set_visible(True)
+
+        Distance.update_inch_size()
 
         # Create background
         KT21Sim.background = pygame.Surface(
