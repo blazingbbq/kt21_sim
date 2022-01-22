@@ -44,10 +44,9 @@ class KT21Sim:
         # Populate teams
         team1 = Team()
         team2 = Team()
-        KT21Sim.gamestate.add_team(team1)
-        KT21Sim.gamestate.add_team(team2)
+        KT21Sim.gamestate.add_teams(team1, team2)
 
-        team1.add_operative(TrooperVeteran())
+        team1.add_operatives(TrooperVeteran())
 
         clock = pygame.time.Clock()
         while KT21Sim.running:

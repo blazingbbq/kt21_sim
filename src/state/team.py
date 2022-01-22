@@ -18,10 +18,15 @@ class Team:
         for op in self.operatives:
             op.redraw()
 
-    def add_operative(self, operative: Operative):
-        self.operatives.append(operative)
-        operative.team = self
-        operative.on_added_to_team()
+    def attach_gamestate(self, gamestate):
+        from state.gamestate import GameState
+        self.gamestate: GameState = gamestate
+
+    def add_operatives(self, *operatives: Operative):
+        for operative in operatives:
+            self.operatives.append(operative)
+            operative.team = self
+            operative.on_added_to_team()
 
     def use_strategic_ploy(self):
         """Prompt player to use a strategic ploy

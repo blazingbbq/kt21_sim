@@ -39,8 +39,10 @@ class GameState:
         for t in self.teams:
             t.redraw()
 
-    def add_team(self, team: Team):
-        self.teams.append(team)
+    def add_teams(self, *teams: Team):
+        for team in teams:
+            team.attach_gamestate(self)
+            self.teams.append(team)
 
     def add_phases(self, *phases):
         for phase in phases:
