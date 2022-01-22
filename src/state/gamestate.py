@@ -10,12 +10,24 @@ class GameState:
     def __init__(self):
         self.teams: Team = []
         self.gameboard: GameBoard = GameBoard()
-        self.turn_phases: list[Phase] = [
-            InitiativePhase(), StrategyPhase(), FirefightPhase()]
+
+        # Game phases
+        self.turn_phases: list[Phase] = []
+        self.setup_phase = SetupPhase()
+        self.setup_phase.attach_gamestate(self)
+        self.initiative_phase = InitiativePhase()
+        self.strategy_phase = StrategyPhase()
+        self.firefight_phase = FirefightPhase()
+        self.add_phases(self.initiative_phase,
+                        self.strategy_phase, self.firefight_phase)
+
         self.max_turns = self.MAX_TURNS
         self.current_turn = 1
 
+        # TODO: Track Mission
+
     def run(self):
+        self.setup_phase.run()
         while self.current_turn <= self.max_turns:
             for phase in self.turn_phases:
                 phase.run()
@@ -29,6 +41,11 @@ class GameState:
 
     def add_team(self, team: Team):
         self.teams.append(team)
+
+    def add_phases(self, *phases):
+        for phase in phases:
+            phase.attach_gamestate(self)
+            self.turn_phases.append(phase)
 
     def pump(self):
         """ Wrapper function for pumping the current simulation state.

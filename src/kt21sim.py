@@ -10,6 +10,7 @@ START_FULLSCREEN = False
 def gamestate():
     return KT21Sim.gamestate
 
+
 class KT21Sim:
     # Pygame management
     background: pygame.Surface = None
@@ -42,10 +43,11 @@ class KT21Sim:
 
         # Populate teams
         team1 = Team()
-        team1.add_operative(TrooperVeteran())
-
+        team2 = Team()
         KT21Sim.gamestate.add_team(team1)
-        # KT21Sim.gamestate.add_team(Team())
+        KT21Sim.gamestate.add_team(team2)
+
+        team1.add_operative(TrooperVeteran())
 
         clock = pygame.time.Clock()
         while KT21Sim.running:
