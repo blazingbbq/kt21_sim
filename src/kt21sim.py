@@ -5,6 +5,7 @@ from operatives import *
 from utils.distances import *
 
 START_FULLSCREEN = False
+BACKGROUND_COLOR = 0xc9c0ae
 
 
 def gamestate():
@@ -36,7 +37,7 @@ class KT21Sim:
         # Create background
         KT21Sim.background = pygame.Surface(
             screen.get_size()).convert()
-        KT21Sim.background.fill((170, 238, 187))
+        KT21Sim.background.fill(BACKGROUND_COLOR)
 
         # Display background
         screen.blit(KT21Sim.background, (0, 0))

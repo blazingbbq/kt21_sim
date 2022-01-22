@@ -9,6 +9,7 @@ GAMEBOARD_HEIGHT = 30
 
 class GameBoard:
     border_color = (0, 0, 0)
+    board_color = 0xb29175
 
     def __init__(self):
         self.terrain = Terrain()
@@ -48,6 +49,7 @@ class GameBoard:
 
     def redraw(self):
         screen = pygame.display.get_surface()
+        pygame.draw.rect(screen, self.board_color, self.rect)
         pygame.draw.rect(screen, self.border_color, self.rect, 1)
 
         # Redraw terrain
