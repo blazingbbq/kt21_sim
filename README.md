@@ -3,7 +3,7 @@
 ## Roadmap
 
 - [ ] Top level gamestate namespace class with utilities:
-    - [ ] Pump utility for use while game objects are spinning (e.g. waiting for user input). Should pump pygame / check quit events
+    - [x] Pump utility for use while game objects are spinning (e.g. waiting for user input). Should pump pygame / check quit events
     - [ ] Callbacks for team wide action events?
         - [ ] `on_shoot`, `on_damage`, `on_fight` ?
             - Maybe models check these whenever they perform their own state change callbacks
@@ -14,7 +14,7 @@
             - [ ] Include support for cover / obscuring
         - [ ] charge
         - [ ] fight
-    - [ ] Utility for rolling dice
+    - [x] Utility for rolling dice
     - [ ] Utility for determining which team controls objective based on models within range
     - [ ] Have chain activation queue that can insert other units so that they are activated immediately following another operative's activation.
         - [ ] Or, make this a callback that gets registered in the operative's `on_activation_end` and removes itself from the list after being called
@@ -26,11 +26,11 @@
     - [ ] Add utilities for scoring victory points
 - [ ] Add standalone utility classes for resolving shooting / fighting
     - [ ] Retaining dice for cover (include callback for special handling like retaining 2 dice instead of one?)
-- [ ] Turnphase objects for each phase in the game. Loop through these until all turns have elapsed
+- [x] Turnphase objects for each phase in the game. Loop through these until all turns have elapsed
     - [ ] Callback hooks for different phases of the game where armies could have actions to take (e.g. guardsmen orders)
-    - [ ] Roll initiative
+    - [x] Roll initiative
 - [ ] Character objects.
-    - [ ] Include all stats exposed on game card as property.
+    - [x] Include all stats exposed on game card as property.
     - [ ] Maintain list of Actions that can be performed (include description and callback)
     - [ ] List of Abilities (passive and active)
     - [ ] List of Equipement

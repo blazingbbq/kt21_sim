@@ -5,7 +5,8 @@ import utils
 class InitiativePhase(Phase):
     def __init__(self):
         super().__init__(
-            steps=[self.ready_operatives, self.determine_initiative])
+            steps=[self.ready_operatives,
+                   self.determine_initiative])
 
     def ready_operatives(self, state):
         from state.gamestate import GameState
@@ -33,3 +34,23 @@ class InitiativePhase(Phase):
         for i, team in enumerate(gamestate.teams):
             for on_initiative_roll in team.on_initiative_roll:
                 rolls[i] = on_initiative_roll(rolls[i])
+
+        # Find current player with initiate, reset initiative
+        current_initiative = 0
+        for i, team in enumerate(gamestate.teams):
+            if team.has_initiative:
+                current_initiative = i
+                team.has_initiative = False
+                break
+
+        # Determine initiative
+        highest_roll = max(rolls)
+        top_rollers = [roll == highest_roll for roll in rolls]
+
+        check_idx = current_initiative
+        for _ in top_rollers:
+            # Player with highest roll, following previous player with initiative is selected
+            check_idx = (check_idx + 1) % len(top_rollers)
+            if top_rollers[check_idx]:
+                break
+        gamestate.teams[check_idx].has_initiative = True

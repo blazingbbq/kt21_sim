@@ -6,7 +6,7 @@ class Team:
     def __init__(self):
         self.victory_points = 0
         self.command_points = 0
-        self.has_initiate = False
+        self.has_initiative = False
         self.operatives: list[Operative] = []
 
         # Team based callbacks
@@ -22,6 +22,24 @@ class Team:
         self.operatives.append(operative)
         operative.team = self
         operative.on_added_to_team()
+
+    def use_strategic_ploy(self):
+        """Prompt player to use a strategic ploy
+
+        Returns:
+            [bool]: Returns whether a strategic ploy was used
+        """
+        # TODO: Prompt player to use strategic ploy
+        return False
+
+    def target_reveal_tac_ops(self):
+        """Prompt player to reveal Tac Ops during Target Reveal step
+
+        Returns:
+            [bool]: Returns whether a Tac Ops was revealed
+        """
+        # TODO: Prompt player to reveal Tac Ops
+        return False
 
     # Register callbacks
 
