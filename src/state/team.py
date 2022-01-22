@@ -41,6 +41,15 @@ class Team:
         # TODO: Prompt player to reveal Tac Ops
         return False
 
+    def activate_operative(self):
+        """Prompt player to activate operative. Includes overwatch actions.
+
+        Returns:
+            [bool]: Return whether an operative was activated (excludes overwatch actions)
+        """
+        # TODO: Prompt player to select operative to activate
+        return False
+
     # Register callbacks
 
     def register_on_initiative_roll(self, cb: Callable[[int], int]):
