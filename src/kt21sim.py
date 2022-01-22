@@ -7,6 +7,9 @@ from utils.distances import *
 START_FULLSCREEN = False
 
 
+def gamestate():
+    return KT21Sim.gamestate
+
 class KT21Sim:
     # Pygame management
     background: pygame.Surface = None
@@ -17,7 +20,7 @@ class KT21Sim:
 
     def start():
         # Init display
-        # Can get pygame screen using pygame.display.get_surface()
+        # NOTE: Can get pygame screen using pygame.display.get_surface()
         screen = pygame.display.set_mode(
             (0, 0), pygame.FULLSCREEN if START_FULLSCREEN else pygame.RESIZABLE)
         pygame.display.set_caption("KT21 Sim")
@@ -50,13 +53,16 @@ class KT21Sim:
             KT21Sim.pump()
 
             # Update game state
-            KT21Sim.gamestate.update()
+            KT21Sim.gamestate.run()
 
             # Draw
-            # FIXME: Do not blit every frame...
-            screen.blit(KT21Sim.background, (0, 0))
-            KT21Sim.gamestate.redraw()
-            pygame.display.flip()
+            KT21Sim.redraw()
+
+    def redraw():
+        screen = pygame.display.get_surface()
+        screen.blit(KT21Sim.background, (0, 0))
+        KT21Sim.gamestate.redraw()
+        pygame.display.flip()
 
     def pump():
         # Handle input events
