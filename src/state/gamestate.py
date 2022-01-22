@@ -10,6 +10,7 @@ class GameState:
     def __init__(self):
         self.teams: Team = []
         self.gameboard: GameBoard = GameBoard()
+        self.gameboard.attach_gamestate(self)
 
         # Game phases
         self.turn_phases: list[Phase] = []
@@ -35,9 +36,11 @@ class GameState:
             self.current_turn += 1
 
     def redraw(self):
+        kt21sim.KT21Sim.wipe()
         self.gameboard.redraw()
         for t in self.teams:
             t.redraw()
+        pygame.display.flip()
 
     def add_teams(self, *teams: Team):
         for team in teams:

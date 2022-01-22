@@ -14,6 +14,7 @@ def gamestate():
 class KT21Sim:
     # Pygame management
     background: pygame.Surface = None
+    clock: pygame.time.Clock = None
     running: bool = True
 
     # Game state
@@ -28,6 +29,9 @@ class KT21Sim:
         pygame.mouse.set_visible(True)
 
         Distance.update_inch_size()
+
+        # Init clock
+        KT21Sim.clock = pygame.time.Clock()
 
         # Create background
         KT21Sim.background = pygame.Surface(
@@ -47,23 +51,22 @@ class KT21Sim:
         KT21Sim.gamestate.add_teams(team1, team2)
 
         team1.add_operatives(TrooperVeteran())
+        team2.add_operatives(TrooperVeteran())
 
-        clock = pygame.time.Clock()
+        # Run through game phases
+        KT21Sim.pump()
+        KT21Sim.gamestate.redraw()
+        KT21Sim.gamestate.run()
+
+        # Spin once game is over
+        # TODO: Do something once game is over
         while KT21Sim.running:
-            clock.tick(60)
             KT21Sim.pump()
+            KT21Sim.gamestate.redraw()
 
-            # Update game state
-            KT21Sim.gamestate.run()
-
-            # Draw
-            KT21Sim.redraw()
-
-    def redraw():
+    def wipe():
         screen = pygame.display.get_surface()
         screen.blit(KT21Sim.background, (0, 0))
-        KT21Sim.gamestate.redraw()
-        pygame.display.flip()
 
     def pump():
         # Handle input events
@@ -72,3 +75,6 @@ class KT21Sim:
                 KT21Sim.running = False
                 pygame.quit()
                 exit()
+
+        # Tick clock to prevent spinning too fast
+        KT21Sim.clock.tick(60)

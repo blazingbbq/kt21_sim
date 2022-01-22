@@ -1,3 +1,4 @@
+from typing import Tuple
 import pygame
 from abc import ABC
 from .datacard import *
@@ -14,11 +15,15 @@ class Operative(pygame.sprite.Sprite, ABC):
         # Game object init
         self.datacard = datacard
         self.render_group = pygame.sprite.RenderPlain()
+
+        # Status
+        self.deployed = False
         self.ready = False
+        self.visible = False
 
         # Sprite init
         pygame.sprite.Sprite.__init__(self)
-        self.rect = pygame.Rect(100, 100, 0, 0).inflate(
+        self.rect = pygame.Rect(0, 0, 0, 0).inflate(
             self.datacard.physical_profile.base.to_screen_size(), self.datacard.physical_profile.base.to_screen_size())
         # TODO: Choose starting position during deploy step
 
@@ -27,9 +32,25 @@ class Operative(pygame.sprite.Sprite, ABC):
         """
         pass
 
+    def on_deployed(self):
+        self.deployed = True
+        self.visible = True
+
+    def show(self):
+        self.visible = True
+
+    def hide(self):
+        self.visible = False
+
+    def move(self, center: Tuple[float, float]):
+        self.rect.center = center
+
     def redraw(self):
+        if not self.visible:
+            return
+
         screen = pygame.display.get_surface()
-        if self.color and self.ready:
+        if self.color:
             pygame.draw.circle(screen, self.color,
                                self.rect.center, self.rect.width/2)
         self.render_group.draw(screen)

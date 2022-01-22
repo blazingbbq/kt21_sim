@@ -4,6 +4,8 @@ from operatives import *
 
 class Team:
     def __init__(self):
+        # TODO: Include information about faction
+
         self.victory_points = 0
         self.command_points = 0
         self.has_initiative = False
@@ -27,6 +29,21 @@ class Team:
             self.operatives.append(operative)
             operative.team = self
             operative.on_added_to_team()
+
+    def deploy_operative(self):
+        undeployed_operatives: list[Operative] = [
+            op for op in self.operatives if not op.deployed]
+
+        if len(undeployed_operatives) <= 0:
+            # Nothing left to deploy
+            return False
+
+        # TODO: Deploy operatives in player decided order
+        op: Operative = undeployed_operatives.pop()
+        self.gamestate.gameboard.deploy(op)
+        op.on_deployed()
+
+        return True
 
     def use_strategic_ploy(self):
         """Prompt player to use a strategic ploy
