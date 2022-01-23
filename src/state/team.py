@@ -1,5 +1,6 @@
 from typing import Callable
 from operatives import *
+import utils.player_input
 
 
 class Team:
@@ -69,8 +70,28 @@ class Team:
         Returns:
             [bool]: Return whether an operative was activated (excludes overwatch actions)
         """
-        # TODO: Prompt player to select operative to activate
-        return False
+        ready_operatives: list[Operative] = [
+            op for op in self.operatives if op.ready]
+
+        print(ready_operatives)
+
+        if len(ready_operatives) <= 0:
+            # TODO: Check for overwatch
+
+            # Nothing left to activate
+            return False
+
+        # Get operative selection
+        def while_waiting():
+            # TODO: Show operative info on hover
+            self.gamestate.pump()
+
+        active_operative: Operative = utils.player_input.wait_for_sprite_selection(
+            targets=ready_operatives, spin=while_waiting)
+
+        # Activate operative
+        active_operative.activate()
+        return True
 
     # Register callbacks
 

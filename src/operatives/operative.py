@@ -15,6 +15,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         # Game object init
         self.datacard = datacard
         self.render_group = pygame.sprite.RenderPlain()
+        self.apl_modifier = 0
 
         # Status
         self.deployed = False
@@ -54,3 +55,34 @@ class Operative(pygame.sprite.Sprite, ABC):
             pygame.draw.circle(screen, self.color,
                                self.rect.center, self.rect.width/2)
         self.render_group.draw(screen)
+
+    @property
+    def apl_modifier(self):
+        return self._apl_modifier
+
+    @apl_modifier.setter
+    def apl_modifier(self, value):
+        # APL modifier can never be more than +1/-1
+        if value > 0:
+            self._apl_modifier = 1
+        elif value < 0:
+            self._apl_modifier = -1
+        else:
+            self._apl_modifier = 0
+
+    def activate(self):
+        self.hide()
+        self.team.gamestate.redraw()
+
+        # TODO: Prompt player to select engage/conceal order
+
+        action_points = self.datacard.physical_profile.action_point_limit + self.apl_modifier
+        # While the operative has action points remaining, perform actions
+        while action_points > 0:
+            # TODO: Prompt player to select action
+            action_points -= 1
+
+        # APL modifier reset at the end of the current/next activation
+        # TODO: Add hooks for on_activation_end
+        self.APL_modifier = 0
+        self.ready = False

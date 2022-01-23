@@ -50,5 +50,5 @@ class Distance:
         return Distance(num)
 
     def update_inch_size():
-        Distance.inch_size = pygame.display.get_surface(
-        ).get_rect().height // board.gameboard.GAMEBOARD_HEIGHT
+        Distance.inch_size = (pygame.display.get_surface().get_rect(
+        ).height - board.gameboard.GAMEBOARD_PADDING * 2) // board.gameboard.GAMEBOARD_HEIGHT

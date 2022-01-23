@@ -60,6 +60,7 @@ class KT21Sim:
         KT21Sim.gamestate.run()
 
         # Spin once game is over
+        print("--- Sim complete ---")
         # TODO: Do something once game is over
         while KT21Sim.running:
             KT21Sim.pump()

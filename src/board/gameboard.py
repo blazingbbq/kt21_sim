@@ -6,6 +6,8 @@ import utils.player_input
 GAMEBOARD_WIDTH = 22
 GAMEBOARD_HEIGHT = 30
 
+# Padding around gameboard (in pixels)
+GAMEBOARD_PADDING = 5
 
 class GameBoard:
     border_color = (0, 0, 0)
@@ -36,10 +38,8 @@ class GameBoard:
             self.gamestate.redraw()
             self.gamestate.pump()
 
-        while True:
-            click_loc = utils.player_input.get_click_blocking(while_waiting)
-            if self.valid_deploy_loc(click_loc):
-                break
+        click_loc = utils.player_input.wait_for_selection(
+            validate=self.valid_deploy_loc, spin=while_waiting)
 
         operative.move(click_loc)
 
