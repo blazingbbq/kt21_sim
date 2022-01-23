@@ -1,5 +1,17 @@
 # kt21_sim
 
+## Dependencies
+
+```sh
+pip install pygame pygame_gui -U
+```
+
+## Running
+
+```sh
+./run
+```
+
 ## Roadmap
 
 - [ ] Top level gamestate namespace class with utilities:
