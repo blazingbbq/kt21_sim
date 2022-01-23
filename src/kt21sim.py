@@ -1,17 +1,17 @@
-import pygame
 from state.gamestate import *
 from state.team import *
 from operatives import *
-from utils.distances import *
 import game.screen
+import utils.distance
 
 
 class KT21Sim:
     def start():
-        # Init display
+        # Init display and UI
         game.screen.init("KT21 Sim")
+        game.ui.init()
 
-        Distance.update_inch_size()
+        utils.distance.update_inch_size()
 
         # Init gamestate
         gamestate: GameState = GameState()
@@ -27,9 +27,9 @@ class KT21Sim:
         # Run through game phases
         gamestate.redraw()
         gamestate.run()
+        print("--- Sim complete ---")
 
         # Spin once game is over
-        print("--- Sim complete ---")
         # TODO: Do something once game is over
         running = True
         while running:

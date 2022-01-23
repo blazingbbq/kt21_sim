@@ -1,6 +1,6 @@
 import pygame
 from .terrain import *
-import utils.distances
+import utils.distance
 import utils.player_input
 
 GAMEBOARD_WIDTH = 22
@@ -19,8 +19,8 @@ class GameBoard:
         self.gamestate: GameState = gamestate
 
         self.terrain = Terrain()
-        self.width = utils.distances.Distance.from_inch(GAMEBOARD_WIDTH)
-        self.height = utils.distances.Distance.from_inch(GAMEBOARD_HEIGHT)
+        self.width = utils.distance.from_inch(GAMEBOARD_WIDTH)
+        self.height = utils.distance.from_inch(GAMEBOARD_HEIGHT)
 
         screen = pygame.display.get_surface()
         self.rect = pygame.Rect(

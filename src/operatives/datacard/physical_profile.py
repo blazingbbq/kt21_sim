@@ -1,7 +1,8 @@
-from utils.distances import *
+import utils.distance
+
 
 class PhysicalProfile:
-    def __init__(self, movement: Distance, action_point_limit: int, group_activation: int, defence: int, save: int, wounds: int, base: Distance):
+    def __init__(self, movement: utils.distance.Distance, action_point_limit: int, group_activation: int, defence: int, save: int, wounds: int, base: utils.distance.Distance):
         """Init physical profile
 
         Args:
@@ -14,7 +15,6 @@ class PhysicalProfile:
             base (Distance): The unit's base size.
         """
 
-        # TODO: movement should be measured as a MovementUnits object
         self.movement = movement
         self.action_point_limit = action_point_limit
         self.group_activation = group_activation

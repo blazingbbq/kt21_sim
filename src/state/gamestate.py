@@ -4,8 +4,10 @@ from .phases import *
 import game.clock
 import game.events
 import game.screen
+import game.ui
 
 
+# TODO: Probably want to move this to game.state instead of state.gamestate
 class GameState:
     MAX_TURNS = 4
 
@@ -39,13 +41,14 @@ class GameState:
         """Redraw the gamestate. Also pumps game events
         """
         # Tick clock to prevent spinning too fast
-        delta = game.clock.tick(60) / 1000.0
-
+        game.clock.tick(60)
         game.screen.wipe()
 
         self.gameboard.redraw()
         for t in self.teams:
             t.redraw()
+        game.ui.redraw()
+
         game.screen.redraw()
 
         # Also pump game events

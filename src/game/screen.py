@@ -31,3 +31,11 @@ def wipe():
 
 def redraw():
     pygame.display.flip()
+
+
+def size():
+    return _Screen.screen.get_size()
+
+
+def get_surface():
+    return _Screen.screen

@@ -1,4 +1,5 @@
 import pygame
+import game.ui
 
 
 def pump():
@@ -7,3 +8,5 @@ def pump():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+
+        game.ui.process(event)
