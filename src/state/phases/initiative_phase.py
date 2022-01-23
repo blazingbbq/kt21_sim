@@ -3,10 +3,10 @@ import utils
 
 
 class InitiativePhase(Phase):
-    def __init__(self):
-        super().__init__(
-            steps=[self.ready_operatives,
-                   self.determine_initiative])
+    def __init__(self, gamestate):
+        super().__init__(gamestate=gamestate,
+                         steps=[self.ready_operatives,
+                                self.determine_initiative])
 
     def ready_operatives(self):
         for team in self.gamestate.teams:

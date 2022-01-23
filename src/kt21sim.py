@@ -3,80 +3,34 @@ from state.gamestate import *
 from state.team import *
 from operatives import *
 from utils.distances import *
-
-START_FULLSCREEN = False
-BACKGROUND_COLOR = 0xc9c0ae
-
-
-def gamestate():
-    return KT21Sim.gamestate
+import game.screen
 
 
 class KT21Sim:
-    # Pygame management
-    background: pygame.Surface = None
-    clock: pygame.time.Clock = None
-    running: bool = True
-
-    # Game state
-    gamestate: GameState = None
-
     def start():
         # Init display
-        # NOTE: Can get pygame screen using pygame.display.get_surface()
-        screen = pygame.display.set_mode(
-            (0, 0), pygame.FULLSCREEN if START_FULLSCREEN else pygame.RESIZABLE)
-        pygame.display.set_caption("KT21 Sim")
-        pygame.mouse.set_visible(True)
+        game.screen.init("KT21 Sim")
 
         Distance.update_inch_size()
 
-        # Init clock
-        KT21Sim.clock = pygame.time.Clock()
-
-        # Create background
-        KT21Sim.background = pygame.Surface(
-            screen.get_size()).convert()
-        KT21Sim.background.fill(BACKGROUND_COLOR)
-
-        # Display background
-        screen.blit(KT21Sim.background, (0, 0))
-        pygame.display.flip()
-
         # Init gamestate
-        KT21Sim.gamestate = GameState()
+        gamestate: GameState = GameState()
 
         # Populate teams
         team1 = Team()
         team2 = Team()
-        KT21Sim.gamestate.add_teams(team1, team2)
+        gamestate.add_teams(team1, team2)
 
         team1.add_operatives(TrooperVeteran())
         team2.add_operatives(TrooperVeteran())
 
         # Run through game phases
-        KT21Sim.pump()
-        KT21Sim.gamestate.redraw()
-        KT21Sim.gamestate.run()
+        gamestate.redraw()
+        gamestate.run()
 
         # Spin once game is over
         print("--- Sim complete ---")
         # TODO: Do something once game is over
-        while KT21Sim.running:
-            KT21Sim.pump()
-            KT21Sim.gamestate.redraw()
-
-    def wipe():
-        screen = pygame.display.get_surface()
-        screen.blit(KT21Sim.background, (0, 0))
-
-    def pump():
-        # Handle input events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                KT21Sim.running = False
-                pygame.quit()
-                exit()
-
-        # Tick clock to prevent spinning too fast
-        KT21Sim.clock.tick(60)
+        running = True
+        while running:
+            gamestate.redraw()

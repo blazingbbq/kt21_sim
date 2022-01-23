@@ -1,7 +1,9 @@
 from .team import *
 from board import *
 from .phases import *
-import kt21sim
+import game.clock
+import game.events
+import game.screen
 
 
 class GameState:
@@ -9,16 +11,14 @@ class GameState:
 
     def __init__(self):
         self.teams: Team = []
-        self.gameboard: GameBoard = GameBoard()
-        self.gameboard.attach_gamestate(self)
+        self.gameboard: GameBoard = GameBoard(self)
 
         # Game phases
         self.turn_phases: list[Phase] = []
-        self.setup_phase = SetupPhase()
-        self.setup_phase.attach_gamestate(self)
-        self.initiative_phase = InitiativePhase()
-        self.strategy_phase = StrategyPhase()
-        self.firefight_phase = FirefightPhase()
+        self.setup_phase = SetupPhase(self)
+        self.initiative_phase = InitiativePhase(self)
+        self.strategy_phase = StrategyPhase(self)
+        self.firefight_phase = FirefightPhase(self)
         self.add_phases(self.initiative_phase,
                         self.strategy_phase, self.firefight_phase)
 
@@ -36,11 +36,20 @@ class GameState:
             self.current_turn += 1
 
     def redraw(self):
-        kt21sim.KT21Sim.wipe()
+        """Redraw the gamestate. Also pumps game events
+        """
+        # Tick clock to prevent spinning too fast
+        delta = game.clock.tick(60) / 1000.0
+
+        game.screen.wipe()
+
         self.gameboard.redraw()
         for t in self.teams:
             t.redraw()
-        pygame.display.flip()
+        game.screen.redraw()
+
+        # Also pump game events
+        game.events.pump()
 
     def add_teams(self, *teams: Team):
         for team in teams:
@@ -49,11 +58,4 @@ class GameState:
 
     def add_phases(self, *phases):
         for phase in phases:
-            phase.attach_gamestate(self)
             self.turn_phases.append(phase)
-
-    def pump(self):
-        """ Wrapper function for pumping the current simulation state.
-            Can be used directly on a gamestate reference instead of using the global KT21Sim.
-        """
-        kt21sim.KT21Sim.pump()

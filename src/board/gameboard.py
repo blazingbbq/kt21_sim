@@ -9,11 +9,15 @@ GAMEBOARD_HEIGHT = 30
 # Padding around gameboard (in pixels)
 GAMEBOARD_PADDING = 5
 
+
 class GameBoard:
     border_color = (0, 0, 0)
     board_color = 0xb29175
 
-    def __init__(self):
+    def __init__(self, gamestate):
+        from state.gamestate import GameState
+        self.gamestate: GameState = gamestate
+
         self.terrain = Terrain()
         self.width = utils.distances.Distance.from_inch(GAMEBOARD_WIDTH)
         self.height = utils.distances.Distance.from_inch(GAMEBOARD_HEIGHT)
@@ -22,10 +26,6 @@ class GameBoard:
         self.rect = pygame.Rect(
             0, 0, self.width.to_screen_size(), self.height.to_screen_size())
         self.rect.center = screen.get_rect().center
-
-    def attach_gamestate(self, gamestate):
-        from state.gamestate import GameState
-        self.gamestate: GameState = gamestate
 
     def deploy(self, op):
         from operatives import Operative
@@ -36,7 +36,6 @@ class GameBoard:
             operative.move(utils.player_input.mouse_pos())
 
             self.gamestate.redraw()
-            self.gamestate.pump()
 
         click_loc = utils.player_input.wait_for_selection(
             validate=self.valid_deploy_loc, spin=while_waiting)

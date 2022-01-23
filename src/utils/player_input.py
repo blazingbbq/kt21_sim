@@ -29,7 +29,7 @@ def get_click_blocking(spin: Callable[[], None]):
     """Wait for the mouse to perform a mouse click.
 
     Args:
-        spin (Callable[[], None]): A callback to use while the waiting for mouse input.
+        spin (Callable[[], None]): A callback to use while waiting for mouse input.
 
     Returns:
         Tuple[float, float]: The location of the mouse click, on release.

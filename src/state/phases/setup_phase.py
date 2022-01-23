@@ -2,8 +2,9 @@ from ..phase import Phase
 
 
 class SetupPhase(Phase):
-    def __init__(self):
-        super().__init__(steps=[self.deployment])
+    def __init__(self, gamestate):
+        super().__init__(gamestate=gamestate,
+                         steps=[self.deployment])
 
     def deployment(self):
         self.alternate_action_starting_with_initiative_player(

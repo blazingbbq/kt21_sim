@@ -2,8 +2,9 @@ from ..phase import Phase
 
 
 class StrategyPhase(Phase):
-    def __init__(self):
-        super().__init__(steps=[self.generate_command_points,
+    def __init__(self, gamestate):
+        super().__init__(gamestate=gamestate,
+                         steps=[self.generate_command_points,
                                 self.play_strategic_ploys,
                                 self.target_reveal])
 

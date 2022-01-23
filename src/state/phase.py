@@ -3,14 +3,11 @@ from typing import Callable
 
 
 class Phase(ABC):
-    def __init__(self, steps: Callable[[], None]):
+    def __init__(self, gamestate, steps: Callable[[], None]):
         from state.gamestate import GameState
         # GameState is attached when phases are added to the gamestate
-        self.gamestate: GameState = None
+        self.gamestate: GameState = gamestate
         self.steps = steps
-
-    def attach_gamestate(self, gamestate):
-        self.gamestate = gamestate
 
     def run(self):
         """Run through the steps that make up this phase.

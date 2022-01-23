@@ -7,6 +7,10 @@ class Team:
     def __init__(self):
         # TODO: Include information about faction
 
+        # GameState attached when the team is added to the gamestate
+        from state.gamestate import GameState
+        self.gamestate: GameState = None
+
         self.victory_points = 0
         self.command_points = 0
         self.has_initiative = False
@@ -22,8 +26,7 @@ class Team:
             op.redraw()
 
     def attach_gamestate(self, gamestate):
-        from state.gamestate import GameState
-        self.gamestate: GameState = gamestate
+        self.gamestate = gamestate
 
     def add_operatives(self, *operatives: Operative):
         for operative in operatives:
@@ -73,8 +76,6 @@ class Team:
         ready_operatives: list[Operative] = [
             op for op in self.operatives if op.ready]
 
-        print(ready_operatives)
-
         if len(ready_operatives) <= 0:
             # TODO: Check for overwatch
 
@@ -82,12 +83,9 @@ class Team:
             return False
 
         # Get operative selection
-        def while_waiting():
-            # TODO: Show operative info on hover
-            self.gamestate.pump()
-
+        # TODO: Show operative info on hover
         active_operative: Operative = utils.player_input.wait_for_sprite_selection(
-            targets=ready_operatives, spin=while_waiting)
+            targets=ready_operatives, spin=self.gamestate.redraw)
 
         # Activate operative
         active_operative.activate()
