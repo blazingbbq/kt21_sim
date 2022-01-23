@@ -1,6 +1,7 @@
 from typing import Callable
 from operatives import *
 import utils.player_input
+import game.ui
 
 
 class Team:
@@ -10,6 +11,7 @@ class Team:
         # GameState attached when the team is added to the gamestate
         from state.gamestate import GameState
         self.gamestate: GameState = None
+        self.team_id: int = None
 
         self.victory_points = 0
         self.command_points = 0
@@ -19,14 +21,31 @@ class Team:
         # Team based callbacks
         self.on_initiative_roll: list[Callable[[int], int]] = []
 
-    def redraw(self):
-        # TODO: Draw team information on each side of the screen
+    def create_ui(self):
+        # TODO: What to do if there's more than 2 teams?
+        self.side_panel = game.ui.layout.left_panel if self.team_id % 2 == 0 else game.ui.layout.right_panel
 
+        # FIXME: Replace with faction name
+        self.faction_name_label = game.ui.elements.UILabel(
+            relative_rect=pygame.Rect(
+                0, 0, -1, -1),  # NOTE: Width/height -1 => size to text
+            text="Team {}".format(self.team_id),
+            manager=game.ui.manager,
+            container=self.side_panel)
+
+    def update_ui(self):
+        pass
+
+    def redraw(self):
+        self.update_ui()
         for op in self.operatives:
             op.redraw()
 
-    def attach_gamestate(self, gamestate):
+    def attach_gamestate(self, gamestate, team_id: int):
         self.gamestate = gamestate
+        self.team_id = team_id
+
+        self.create_ui()
 
     def add_operatives(self, *operatives: Operative):
         for operative in operatives:

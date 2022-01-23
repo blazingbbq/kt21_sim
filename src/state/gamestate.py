@@ -42,13 +42,12 @@ class GameState:
         """
         # Tick clock to prevent spinning too fast
         game.clock.tick(60)
-        game.screen.wipe()
 
+        game.screen.wipe()
         self.gameboard.redraw()
         for t in self.teams:
             t.redraw()
         game.ui.redraw()
-
         game.screen.redraw()
 
         # Also pump game events
@@ -56,7 +55,8 @@ class GameState:
 
     def add_teams(self, *teams: Team):
         for team in teams:
-            team.attach_gamestate(self)
+            team_id = len(self.teams)
+            team.attach_gamestate(self, team_id)
             self.teams.append(team)
 
     def add_phases(self, *phases):

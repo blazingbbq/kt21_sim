@@ -11,8 +11,6 @@ class KT21Sim:
         game.screen.init("KT21 Sim")
         game.ui.init()
 
-        utils.distance.update_inch_size()
-
         # Init gamestate
         gamestate: GameState = GameState()
 

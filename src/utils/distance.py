@@ -26,7 +26,7 @@ class Distance:
         return self
 
     def __float__(self):
-        return self.distance
+        return float(self.distance)
 
     def to_screen_size(self):
         return self.distance * self.inch_size
