@@ -1,4 +1,15 @@
-from typing import Callable, List
+from typing import Callable
+
+
+class ActionNames:
+    NORMAL_MOVE = "Normal Move"
+    SHOOT = "Shoot"
+    CHARGE = "Charge"
+    FIGHT = "Fight"
+    DASH = "Dash"
+    FALL_BACK = "Fall Back"
+    PICK_UP = "Pick Up"
+    PASS = "Pass"
 
 
 class Action:
@@ -21,10 +32,10 @@ class Action:
         self.on_action: Callable[[Operative], bool] = on_action
         self.performed: bool = False
 
-    def once_per_turn(self, op):
+    def once_per_turn(action, op):
         from .operative import Operative
         operative: Operative = op
-        return not self in operative.actions_taken
+        return not action in operative.actions_taken
 
     def cost(self, free_actions=[]):
         if self.name in free_actions:

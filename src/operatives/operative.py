@@ -3,7 +3,8 @@ from enum import Enum
 import pygame
 from abc import ABC
 from .datacard import *
-from .action import Action
+from .action import Action, ActionNames
+from .action_conditions import ActionConditions
 import utils.player_input
 
 
@@ -44,12 +45,39 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.on_activation_end: Callable[[Operative], None] = []
 
         # Actions
+        self.free_actions: List[str] = []  # Reference free actions by name
         self.actions_taken: List[Action] = []
         self.actions: List[Action] = [
-            Action(name="Normal Move",
+            Action(name=ActionNames.NORMAL_MOVE,
                    ap_cost=1,
-                   on_action=self.normal_move),
+                   on_action=self.perform_normal_move,
+                   valid_this_turn=ActionConditions.can_move()),
+            Action(name=ActionNames.SHOOT,
+                   ap_cost=1,
+                   on_action=self.perform_shoot,
+                   valid_this_turn=ActionConditions.can_shoot()),
+            Action(name=ActionNames.CHARGE,
+                   ap_cost=1,
+                   on_action=self.perform_charge,
+                   valid_this_turn=ActionConditions.can_charge()),
+            Action(name=ActionNames.FIGHT,
+                   ap_cost=1,
+                   on_action=self.perform_fight,
+                   valid_this_turn=ActionConditions.can_fight()),
+            Action(name=ActionNames.DASH,
+                   ap_cost=1,
+                   on_action=self.perform_dash,
+                   valid_this_turn=ActionConditions.can_dash()),
+            Action(name=ActionNames.FALL_BACK,
+                   ap_cost=2,
+                   on_action=self.perform_fall_back,
+                   valid_this_turn=ActionConditions.can_fall_back()),
+            Action(name=ActionNames.PICK_UP,
+                   ap_cost=1,
+                   on_action=self.perform_pick_up,
+                   valid_this_turn=ActionConditions.can_pick_up()),
         ]
+        self.actions.extend(self.datacard.unique_actions)
 
     def on_added_to_team(self):
         """Callback for when this operative is added to a team. Used to register team-based callbacks and properties
@@ -120,16 +148,21 @@ class Operative(pygame.sprite.Sprite, ABC):
         # Select engage/conceal order
         self.select_order()
 
-        # TODO: Also track free_actions
         self.actions_taken = []
         self.action_points = self.datacard.physical_profile.action_point_limit + self.apl_modifier
         # While the operative has action points remaining, perform actions
-        while self.action_points > 0:
+        while self.action_points > -1:
             valid_actions = {
-                a.name: a for a in self.actions if a.cost() <= self.action_points and a.valid_this_turn(a, self)}
+                a.name: a for a in self.actions if a.cost(self.free_actions) <= self.action_points and a.valid_this_turn(a, self)}
             if len(valid_actions) <= 0:
                 # Nothing else to do!
                 break
+
+            # Passing is always a valid action
+            valid_actions[ActionNames.PASS] = Action(name=ActionNames.PASS,
+                                                     ap_cost=0,
+                                                     on_action=self.perform_pass,
+                                                     valid_this_turn=ActionConditions.can_pass())
 
             # Get player selection
             selected_action = None
@@ -142,13 +175,13 @@ class Operative(pygame.sprite.Sprite, ABC):
 
             # Perform action
             if selected_action.on_action():
-                # TODO: Pass in free_actions to calculate cost
-                self.action_points -= selected_action.cost()
+                self.action_points -= selected_action.cost(self.free_actions)
                 self.actions_taken.append(selected_action)
 
         # APL modifier reset at the end of the current/next activation
         self.APL_modifier = 0
         self.ready = False
+        self.free_actions = []
 
         for on_activation_end in self.on_activation_end:
             on_activation_end(self)
@@ -165,8 +198,39 @@ class Operative(pygame.sprite.Sprite, ABC):
     def register_on_activation_end(self, cb):
         self.on_activation_end.append(cb)
 
-    ### Action callbacks
+    def enemies_within_engagement_range(self):
+        within_engagement_range = []
+        for enemy_team in [team for team in self.team.gamestate.teams if team != self.team]:
+            for op in enemy_team.operatives:
+                if utils.distance.between(self.rect.center, op.rect.center) < utils.distance.TRIANGLE + self.datacard.physical_profile.base/2 + op.datacard.physical_profile.base/2:
+                    within_engagement_range.append(op)
 
-    def normal_move(self):
-        # TODO: Implement normal move
+        return within_engagement_range
+
+    # Action callbacks
+        # TODO: Implement action callbacks
+
+    def perform_normal_move(self):
+        return True
+
+    def perform_shoot(self):
+        return True
+
+    def perform_charge(self):
+        return True
+
+    def perform_fight(self):
+        return True
+
+    def perform_dash(self):
+        return True
+
+    def perform_fall_back(self):
+        return True
+
+    def perform_pick_up(self):
+        return True
+
+    def perform_pass(self):
+        self.action_points = -1
         return True
