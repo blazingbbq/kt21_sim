@@ -31,6 +31,8 @@ class GameBoard:
         from operatives import Operative
         operative: Operative = op
 
+        # TODO: Show valid deployment zones
+
         def while_waiting():
             operative.show()
             operative.move(utils.player_input.mouse_pos())

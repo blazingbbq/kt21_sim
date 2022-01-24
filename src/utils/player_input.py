@@ -1,5 +1,7 @@
-from typing import Any, Callable, List, Tuple
+from typing import Any, Callable, List, Tuple, Union
+import functools
 import pygame
+import game.ui
 
 
 def mouse_pos():
@@ -24,7 +26,7 @@ def click_pos():
 
     return click_loc
 
-
+# TODO: Use generators for this instead, same for all blocking helpers
 def get_click_blocking(spin: Callable[[], None]):
     """Wait for the mouse to perform a mouse click.
 
@@ -63,3 +65,17 @@ def wait_for_sprite_selection(targets: List[pygame.sprite.Sprite], spin: Callabl
         for target in targets:
             if target.rect.collidepoint(click_loc):
                 return target
+
+
+def select_from_list(relative_to: pygame.Rect, items: Union[List[str], List[Tuple[str, str]]]):
+    # TODO: Position top-right if list is too low
+    longest_item = functools.reduce(max, [len(i) for i in items])
+    # FIXME: Do not hardcode width / height of each list entry (item height + fixed border/shadow)
+    selection_list = game.ui.elements.UISelectionList(pygame.Rect(
+        relative_to, (longest_item * 10, len(items) * 20 + 6)), items, game.ui.manager)
+
+    while True:
+        selection = selection_list.get_single_selection()
+        if selection != None:
+            game.ui.remove(selection_list)
+        yield selection

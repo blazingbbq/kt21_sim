@@ -5,6 +5,8 @@ import game.ui
 
 
 class Team:
+    ready_operative_highlight_color = 0x00ff00
+
     def __init__(self):
         # TODO: Include information about faction
 
@@ -101,10 +103,13 @@ class Team:
             # Nothing left to activate
             return False
 
-        # Get operative selection
         # TODO: Show operative info on hover
+        # Get operative selection, highlight ready operatives
+        for op in ready_operatives:
+            op.highlight(self.ready_operative_highlight_color)
         active_operative: Operative = utils.player_input.wait_for_sprite_selection(
             targets=ready_operatives, spin=self.gamestate.redraw)
+        [op.unhighlight() for op in ready_operatives]
 
         # Activate operative
         active_operative.activate()
