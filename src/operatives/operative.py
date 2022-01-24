@@ -1,8 +1,9 @@
-from typing import Callable, Tuple
+from typing import Callable, List, Tuple
 from enum import Enum
 import pygame
 from abc import ABC
 from .datacard import *
+from .action import Action
 import utils.player_input
 
 
@@ -31,6 +32,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.visible = False
 
         self.order = Order.CONCEAL
+        self.action_points = 0
 
         # Sprite init
         pygame.sprite.Sprite.__init__(self)
@@ -40,6 +42,14 @@ class Operative(pygame.sprite.Sprite, ABC):
 
         # Callback hooks
         self.on_activation_end: Callable[[Operative], None] = []
+
+        # Actions
+        self.actions_taken: List[Action] = []
+        self.actions: List[Action] = [
+            Action(name="Normal Move",
+                   ap_cost=1,
+                   on_action=self.normal_move),
+        ]
 
     def on_added_to_team(self):
         """Callback for when this operative is added to a team. Used to register team-based callbacks and properties
@@ -72,6 +82,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.concealed = value == Order.CONCEAL
         self._order = value
 
+    # Sets the position of the operative. Not to be confused with normal_move, the action callback.
     def move(self, center: Tuple[float, float]):
         self.rect.center = center
 
@@ -109,11 +120,31 @@ class Operative(pygame.sprite.Sprite, ABC):
         # Select engage/conceal order
         self.select_order()
 
-        action_points = self.datacard.physical_profile.action_point_limit + self.apl_modifier
+        # TODO: Also track free_actions
+        self.actions_taken = []
+        self.action_points = self.datacard.physical_profile.action_point_limit + self.apl_modifier
         # While the operative has action points remaining, perform actions
-        while action_points > 0:
-            # TODO: Prompt player to select action
-            action_points -= 1
+        while self.action_points > 0:
+            valid_actions = {
+                a.name: a for a in self.actions if a.cost() <= self.action_points and a.valid_this_turn(a, self)}
+            if len(valid_actions) <= 0:
+                # Nothing else to do!
+                break
+
+            # Get player selection
+            selected_action = None
+            for selection in utils.select_from_list(relative_to=self.rect.center,
+                                                    items=valid_actions.keys()):
+                if selection != None:
+                    selected_action = valid_actions.get(selection)
+                    break
+                self.team.gamestate.redraw()
+
+            # Perform action
+            if selected_action.on_action():
+                # TODO: Pass in free_actions to calculate cost
+                self.action_points -= selected_action.cost()
+                self.actions_taken.append(selected_action)
 
         # APL modifier reset at the end of the current/next activation
         self.APL_modifier = 0
@@ -133,3 +164,9 @@ class Operative(pygame.sprite.Sprite, ABC):
 
     def register_on_activation_end(self, cb):
         self.on_activation_end.append(cb)
+
+    ### Action callbacks
+
+    def normal_move(self):
+        # TODO: Implement normal move
+        return True
