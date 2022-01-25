@@ -30,19 +30,18 @@ class GameBoard:
     def deploy(self, op):
         from operatives import Operative
         operative: Operative = op
+        operative.show()
 
         # TODO: Show valid deployment zones
 
-        def while_waiting():
-            operative.show()
+        for click_loc in utils.player_input.wait_for_click():
+            if click_loc != None and self.valid_deploy_loc(click_loc):
+                break
             operative.move(utils.player_input.mouse_pos())
-
             self.gamestate.redraw()
 
-        click_loc = utils.player_input.wait_for_selection(
-            validate=self.valid_deploy_loc, spin=while_waiting)
-
         operative.move(click_loc)
+        self.gamestate.redraw()
 
     def valid_deploy_loc(self, loc):
         # TODO: Check deployment validity using terrain and deployment zones

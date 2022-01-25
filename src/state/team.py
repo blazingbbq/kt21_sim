@@ -1,6 +1,7 @@
 from typing import Callable
 from operatives import *
 import utils.player_input
+import utils.collision
 import game.ui
 
 
@@ -107,8 +108,15 @@ class Team:
         # Get operative selection, highlight ready operatives
         for op in ready_operatives:
             op.highlight(self.ready_operative_highlight_color)
-        active_operative: Operative = utils.player_input.wait_for_sprite_selection(
-            targets=ready_operatives, spin=self.gamestate.redraw)
+
+        for click_loc in utils.player_input.wait_for_click():
+            if click_loc != None:
+                active_operative = utils.collision.get_selected_sprite(
+                    click_loc, ready_operatives)
+                if active_operative != None:
+                    break
+            self.gamestate.redraw()
+
         [op.unhighlight() for op in ready_operatives]
 
         # Activate operative

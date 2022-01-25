@@ -26,53 +26,22 @@ def click_pos():
 
     return click_loc
 
-# TODO: Use generators for this instead, same for all blocking helpers
-def get_click_blocking(spin: Callable[[], None]):
-    """Wait for the mouse to perform a mouse click.
 
-    Args:
-        spin (Callable[[], None]): A callback to use while waiting for mouse input.
-
-    Returns:
-        Tuple[float, float]: The location of the mouse click, on release.
-    """
-    # Wait for mouse down
-    while not left_mb_down():
-        if spin != None:
-            spin()
-
-    # Get mouse position until mouse button released
-    click_loc = mouse_pos()
-    while left_mb_down():
-        if spin != None:
-            spin()
-
-    return click_loc
-
-
-def wait_for_selection(validate: Callable[[Tuple[float, float]], bool], spin: Callable[[], None]):
+def wait_for_click():
     while True:
-        click_loc = get_click_blocking(spin)
-        if validate(click_loc):
-            break
-
-    return click_loc
+        yield click_pos()
 
 
-def wait_for_sprite_selection(targets: List[pygame.sprite.Sprite], spin: Callable[[], None]):
-    while True:
-        click_loc = get_click_blocking(spin=spin)
-        for target in targets:
-            if target.rect.collidepoint(click_loc):
-                return target
-
-
-def select_from_list(relative_to: pygame.Rect, items: Union[List[str], List[Tuple[str, str]]]):
-    # TODO: Position top-right if list is too low
+def select_from_list(relative_to: Tuple[int, int], items: Union[List[str], List[Tuple[str, str]]]):
     longest_item = functools.reduce(max, [len(i) for i in items])
     # FIXME: Do not hardcode width / height of each list entry (item height + fixed border/shadow)
-    selection_list = game.ui.elements.UISelectionList(pygame.Rect(
-        relative_to, (longest_item * 10, len(items) * 20 + 6)), items, game.ui.manager)
+    list_dimensions: Tuple[int, int] = (
+        longest_item * 10, len(items) * 20 + 6)
+    selection_list = game.ui.elements.UISelectionList(
+        relative_rect=pygame.Rect(relative_to, list_dimensions),
+        item_list=items,
+        manager=game.ui.manager)
+    # TODO: Position top-right if list is too low
 
     while True:
         selection = selection_list.get_single_selection()

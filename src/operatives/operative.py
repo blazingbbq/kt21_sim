@@ -166,8 +166,8 @@ class Operative(pygame.sprite.Sprite, ABC):
 
             # Get player selection
             selected_action = None
-            for selection in utils.select_from_list(relative_to=self.rect.center,
-                                                    items=valid_actions.keys()):
+            for selection in utils.player_input.select_from_list(relative_to=self.rect.center,
+                                                                 items=valid_actions.keys()):
                 if selection != None:
                     selected_action = valid_actions.get(selection)
                     break
@@ -188,8 +188,8 @@ class Operative(pygame.sprite.Sprite, ABC):
 
     def select_order(self):
         orders = {"Engage": Order.ENGAGE, "Conceal": Order.CONCEAL}
-        for selection in utils.select_from_list(relative_to=self.rect.center,
-                                                items=orders.keys()):
+        for selection in utils.player_input.select_from_list(relative_to=self.rect.center,
+                                                             items=orders.keys()):
             if selection != None:
                 self.order = orders.get(selection)
                 break
