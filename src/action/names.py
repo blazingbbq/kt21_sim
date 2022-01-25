@@ -1,0 +1,8 @@
+NORMAL_MOVE = "Normal Move"
+SHOOT = "Shoot"
+CHARGE = "Charge"
+FIGHT = "Fight"
+DASH = "Dash"
+FALL_BACK = "Fall Back"
+PICK_UP = "Pick Up"
+PASS = "Pass"

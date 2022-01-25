@@ -3,8 +3,7 @@ from enum import Enum
 import pygame
 from abc import ABC
 from .datacard import *
-from .action import Action, ActionNames
-from .action_conditions import ActionConditions
+from action import Action
 import utils.player_input
 
 
@@ -47,36 +46,10 @@ class Operative(pygame.sprite.Sprite, ABC):
         # Actions
         self.free_actions: List[str] = []  # Reference free actions by name
         self.actions_taken: List[Action] = []
-        self.actions: List[Action] = [
-            Action(name=ActionNames.NORMAL_MOVE,
-                   ap_cost=1,
-                   on_action=self.perform_normal_move,
-                   valid_this_turn=ActionConditions.can_move()),
-            Action(name=ActionNames.SHOOT,
-                   ap_cost=1,
-                   on_action=self.perform_shoot,
-                   valid_this_turn=ActionConditions.can_shoot()),
-            Action(name=ActionNames.CHARGE,
-                   ap_cost=1,
-                   on_action=self.perform_charge,
-                   valid_this_turn=ActionConditions.can_charge()),
-            Action(name=ActionNames.FIGHT,
-                   ap_cost=1,
-                   on_action=self.perform_fight,
-                   valid_this_turn=ActionConditions.can_fight()),
-            Action(name=ActionNames.DASH,
-                   ap_cost=1,
-                   on_action=self.perform_dash,
-                   valid_this_turn=ActionConditions.can_dash()),
-            Action(name=ActionNames.FALL_BACK,
-                   ap_cost=2,
-                   on_action=self.perform_fall_back,
-                   valid_this_turn=ActionConditions.can_fall_back()),
-            Action(name=ActionNames.PICK_UP,
-                   ap_cost=1,
-                   on_action=self.perform_pick_up,
-                   valid_this_turn=ActionConditions.can_pick_up()),
-        ]
+        self.actions: List[Action] = []
+
+        import action.universal
+        self.actions.extend(action.universal.universal_actions)
         self.actions.extend(self.datacard.unique_actions)
 
     def on_added_to_team(self):
@@ -159,10 +132,8 @@ class Operative(pygame.sprite.Sprite, ABC):
                 break
 
             # Passing is always a valid action
-            valid_actions[ActionNames.PASS] = Action(name=ActionNames.PASS,
-                                                     ap_cost=0,
-                                                     on_action=self.perform_pass,
-                                                     valid_this_turn=ActionConditions.can_pass())
+            import action.universal
+            valid_actions[action.names.PASS] = action.universal.pass_action
 
             # Get player selection
             selected_action = None
@@ -174,7 +145,7 @@ class Operative(pygame.sprite.Sprite, ABC):
                 self.team.gamestate.redraw()
 
             # Perform action
-            if selected_action.on_action():
+            if selected_action.on_action(self):
                 self.action_points -= selected_action.cost(self.free_actions)
                 self.actions_taken.append(selected_action)
 
@@ -206,31 +177,3 @@ class Operative(pygame.sprite.Sprite, ABC):
                     within_engagement_range.append(op)
 
         return within_engagement_range
-
-    # Action callbacks
-        # TODO: Implement action callbacks
-
-    def perform_normal_move(self):
-        return True
-
-    def perform_shoot(self):
-        return True
-
-    def perform_charge(self):
-        return True
-
-    def perform_fight(self):
-        return True
-
-    def perform_dash(self):
-        return True
-
-    def perform_fall_back(self):
-        return True
-
-    def perform_pick_up(self):
-        return True
-
-    def perform_pass(self):
-        self.action_points = -1
-        return True

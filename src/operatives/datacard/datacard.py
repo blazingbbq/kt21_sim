@@ -1,6 +1,6 @@
 from typing import List
 from .physical_profile import *
-from operatives.action import Action
+from action import Action
 
 
 class Datacard:
