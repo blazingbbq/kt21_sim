@@ -43,5 +43,4 @@ def size():
 
 
 def get_surface():
-    screen = pygame.display.get_surface()
-    return screen
+    return pygame.display.get_surface()

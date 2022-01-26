@@ -118,6 +118,7 @@ class Team:
             self.gamestate.redraw()
 
         [op.unhighlight() for op in ready_operatives]
+        self.gamestate.redraw()
 
         # Activate operative
         active_operative.activate()

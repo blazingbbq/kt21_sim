@@ -1,41 +1,77 @@
 from .action import Action
 import action.names
 import action.condition
+import utils.distance
+import utils.player_input
 
-# Action callbacks
-# TODO: Implement action callbacks
+
+def perform_normal_move(op):
+    from operatives import Operative
+    operative: Operative = op
+
+    return operative.perform_move(
+        distance=operative.datacard.physical_profile.movement,
+    )
 
 
-def perform_normal_move(self):
+def perform_shoot(op):
+    from operatives import Operative
+    operative: Operative = op
+
+    # TODO: Implement shoot action
     return True
 
 
-def perform_shoot(self):
+def perform_charge(op):
+    from operatives import Operative
+    operative: Operative = op
+
+    return operative.perform_move(
+        distance=operative.datacard.physical_profile.movement + utils.distance.SQUARE,
+        charging=True,
+    )
+
+
+def perform_fight(op):
+    from operatives import Operative
+    operative: Operative = op
+
+    # TODO: Implement fight action
     return True
 
 
-def perform_charge(self):
+def perform_dash(op):
+    from operatives import Operative
+    operative: Operative = op
+
+    return operative.perform_move(
+        distance=utils.distance.SQUARE,
+    )
+
+
+def perform_fall_back(op):
+    from operatives import Operative
+    operative: Operative = op
+
+    return operative.perform_move(
+        distance=operative.datacard.physical_profile.movement,
+        falling_back=True,
+    )
+
+
+def perform_pick_up(op):
+    from operatives import Operative
+    operative: Operative = op
+
+    # TODO: Implement pick_up action
     return True
 
 
-def perform_fight(self):
-    return True
+def perform_pass(op):
+    from operatives import Operative
+    operative: Operative = op
 
-
-def perform_dash(self):
-    return True
-
-
-def perform_fall_back(self):
-    return True
-
-
-def perform_pick_up(self):
-    return True
-
-
-def perform_pass(self):
-    self.action_points = -1
+    operative.action_points = -1
     return True
 
 

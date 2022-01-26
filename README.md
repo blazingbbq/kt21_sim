@@ -43,7 +43,8 @@ pip install pygame pygame_gui -U
     - [x] Roll initiative
 - [ ] Character objects.
     - [x] Include all stats exposed on game card as property.
-    - [ ] Maintain list of Actions that can be performed (include description and callback)
+    - [x] Maintain list of Actions that can be performed (include description and callback)
+        - [ ] Show action description on hover?
     - [ ] List of Abilities (passive and active)
     - [ ] List of Equipement
     - [ ] List of Weapons
@@ -51,7 +52,7 @@ pip install pygame pygame_gui -U
     - [ ] Callbacks for character state changes:
         - [ ] `after_activation` or `on_activation_end`
     - [ ] Handle "injured" state
-    - [ ] Manage engage/conceal order
+    - [x] Manage engage/conceal order
 - [ ] Strategic Ploy object
 - [ ] Weapon Object
     - [ ] `on_crit` callback
@@ -65,6 +66,7 @@ pip install pygame pygame_gui -U
     - [ ] Vantage points
     - [ ] Climbing / dropping
     - [ ] Heavy + Light terrain types
+    - [ ] Add legend to game UI showing colors for terrain types
 - [ ] Add team builder
 - [ ] Add narrative play mode
     - [ ] Exp, battle honours/scars, rare equipment, assets, requisitions

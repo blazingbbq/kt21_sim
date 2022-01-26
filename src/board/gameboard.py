@@ -37,10 +37,10 @@ class GameBoard:
         for click_loc in utils.player_input.wait_for_click():
             if click_loc != None and self.valid_deploy_loc(click_loc):
                 break
-            operative.move(utils.player_input.mouse_pos())
+            operative.move_to(utils.player_input.mouse_pos())
             self.gamestate.redraw()
 
-        operative.move(click_loc)
+        operative.move_to(click_loc)
         self.gamestate.redraw()
 
     def valid_deploy_loc(self, loc):

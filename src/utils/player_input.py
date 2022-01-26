@@ -28,8 +28,20 @@ def click_pos():
 
 
 def wait_for_click():
+    """Waits for the player to complete a full mouse click (i.e. mouse up -> mouse down -> mouse up).
+
+    Yields:
+        Union[Tuple[int, int] | None]: Yields None while waiting for a full mouse click to be performed, then yields the location of the mouse click.
+    """
     while True:
-        yield click_pos()
+        # Wait for mouse down
+        while not left_mb_down():
+            yield None
+        # Wait for mouse to be released
+        while left_mb_down():
+            yield None
+        # Finally, yeild mouse position for click
+        yield mouse_pos()
 
 
 def select_from_list(relative_to: Tuple[int, int], items: Union[List[str], List[Tuple[str, str]]]):

@@ -4,7 +4,9 @@ import pygame
 from abc import ABC
 from .datacard import *
 from action import Action
+from utils.distance.ruler import Ruler
 import utils.player_input
+import utils.distance
 
 
 class Order(Enum):
@@ -25,6 +27,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.datacard = datacard
         self.render_group = pygame.sprite.RenderPlain()
         self.apl_modifier = 0
+        self.ruler = Ruler()
 
         # Status
         self.deployed = False
@@ -83,8 +86,8 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.concealed = value == Order.CONCEAL
         self._order = value
 
-    # Sets the position of the operative. Not to be confused with normal_move, the action callback.
-    def move(self, center: Tuple[float, float]):
+    # Sets the position of the operative. Not to be confused with perform_move, the action callback.
+    def move_to(self, center: Tuple[float, float]):
         self.rect.center = center
 
     def redraw(self):
@@ -102,6 +105,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         # TODO: Display icon idicating current order
 
         self.render_group.draw(screen)
+        self.ruler.redraw()
 
     @property
     def apl_modifier(self):
@@ -119,7 +123,8 @@ class Operative(pygame.sprite.Sprite, ABC):
 
     def activate(self):
         # Select engage/conceal order
-        self.select_order()
+        if self.team.gamestate.current_turn != 1:
+            self.select_order()
 
         self.actions_taken = []
         self.action_points = self.datacard.physical_profile.action_point_limit + self.apl_modifier
@@ -177,3 +182,41 @@ class Operative(pygame.sprite.Sprite, ABC):
                     within_engagement_range.append(op)
 
         return within_engagement_range
+
+    def perform_move(self, distance: utils.distance.Distance, falling_back: bool = False, charging: bool = False):
+        # TODO: Save current position in case we want to cancel move
+
+        # Create a new Distance object to prevent us from accidentally changing the reference we're given
+        remaining_movement = utils.distance.Distance(distance)
+        while remaining_movement > 0:
+            for click_loc in utils.player_input.wait_for_click():
+                # Check that operative can be placed at final destination
+                # Cannot move over the edge of the killzone
+                # Cannot move through another unit (unless flying ?)
+                # Cannot move through terrain, must traverse or climb over
+                #   - check for intersection with terrain, if it does, request cost_for_traversal() from it
+                #   - Must jump or drop across gaps / ledges (see terrain)
+                # Cannot move within engagement range of enemy operative
+
+                # If falling_back, can move through engagement range of enemy units
+                # If charging, must finish move within engagement range of enemy unit
+                # If charging, cannot move through engagement range of other units unless another friendly operative is currently engaged with it
+
+                # TODO: Check all required conditions for the move
+                if click_loc != None:
+                    break
+
+                self.ruler.measure_and_show(
+                    from_=self.rect.center,
+                    towards=utils.player_input.mouse_pos(),
+                    max_length=remaining_movement,
+                )
+                self.team.gamestate.redraw()
+
+            self.ruler.hide()
+            self.move_to(self.ruler.destination)
+            self.team.gamestate.redraw()
+            remaining_movement -= self.ruler.length.round_up(
+                increment=utils.distance.TRIANGLE)
+
+        return True
