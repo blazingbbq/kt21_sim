@@ -23,12 +23,12 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
     - [ ] Callbacks for team wide action events?
         - [ ] `on_shoot`, `on_damage`, `on_fight` ?
             - Maybe models check these whenever they perform their own state change callbacks
-    - [ ] Utility for determining valid movement destinations
+    - [x] Utility for determining valid movement destinations
         - [ ] Include support for difficult terrain traversal
     - [ ] Utilites for determining valid targets
         - [ ] shoot
             - [ ] Include support for cover / obscuring
-        - [ ] charge
+        - [x] charge
         - [ ] fight
     - [x] Utility for rolling dice
     - [ ] Utility for determining which team controls objective based on models within range
