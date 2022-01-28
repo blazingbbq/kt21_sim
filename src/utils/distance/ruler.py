@@ -16,6 +16,10 @@ class Ruler:
         self.visible = False
 
     @property
+    def source(self):
+        return self.start_pos
+
+    @property
     def destination(self):
         return self.end_pos
 
@@ -58,7 +62,7 @@ class Ruler:
 
     def redraw(self):
         if self.visible:
-            # TODO: Print out length of ruler underneath
+            # TODO: Display length of ruler underneath
             pygame.draw.line(
                 # TODO: Use different surface for drawing this so that its rendered above everything else
                 surface=pygame.display.get_surface(),

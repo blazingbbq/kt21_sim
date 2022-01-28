@@ -2,7 +2,7 @@ import utils.distance
 
 
 class PhysicalProfile:
-    def __init__(self, movement: utils.distance.Distance, action_point_limit: int, group_activation: int, defence: int, save: int, wounds: int, base: utils.distance.Distance):
+    def __init__(self, movement: utils.distance.Distance, action_point_limit: int, group_activation: int, defence: int, save: int, wounds: int, base: utils.distance.Distance, flying: bool = False):
         """Init physical profile
 
         Args:
@@ -22,3 +22,4 @@ class PhysicalProfile:
         self.save = save
         self.wounds = wounds
         self.base = base
+        self.flying = flying

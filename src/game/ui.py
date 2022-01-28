@@ -41,7 +41,7 @@ class Layout:
         # Side panels
         left_panel_rect = pygame.Rect(self.gameboard_padding, self.gameboard_padding,
                                       self.side_panel_width, self.window.height - self.gameboard_padding*2)
-        right_panel_rect = pygame.Rect(-self.side_panel_width, self.gameboard_padding,
+        right_panel_rect = pygame.Rect(-self.side_panel_width - self.gameboard_padding - board.gameboard.GAMEBOARD_BORDER_WIDTH, self.gameboard_padding,
                                        self.side_panel_width, self.window.height - self.gameboard_padding*2)
 
         self.left_panel = game.ui.elements.ui_panel.UIPanel(relative_rect=left_panel_rect,

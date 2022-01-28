@@ -1,4 +1,5 @@
-from typing import Union
+from math import sqrt
+from typing import Tuple, Union
 import pygame
 import board.gameboard
 
@@ -141,3 +142,53 @@ def between(from_: pygame.math.Vector2, to: pygame.math.Vector2, max_dist: Union
     if max_dist != None:
         px_distance = min(max_dist, px_distance)
     return from_px(px_distance)
+
+
+def between_line_and_point(line_from: Tuple[int, int], line_to: Tuple[int, int], point: Tuple[int, int]):
+    # See https://stackoverflow.com/a/2233538
+    x1 = line_from[0]
+    x2 = line_to[0]
+    x3 = point[0]
+    y1 = line_from[1]
+    y2 = line_to[1]
+    y3 = point[1]
+
+    px = x2-x1
+    py = y2-y1
+    norm = px*px + py*py
+    if norm == 0:  # Basic attempt at preventing division by 0
+        norm = 0.000000000001
+
+    u = ((x3 - x1) * px + (y3 - y1) * py) / float(norm)
+
+    # For line segments, only test values of u between 0 and 1
+    u = max(0, u)
+    u = min(u, 1)
+
+    # The point of intersection
+    x = x1 + u * px
+    y = y1 + u * py
+
+    # Find the distance between the point of intersection and the target point
+    dx = x - x3
+    dy = y - y3
+    dist = sqrt(dx**2 + dy**2)
+
+    return from_px(dist)
+
+
+def between_infinite_line_and_point(line_from: Tuple[int, int], line_to: Tuple[int, int], point: Tuple[int, int]):
+    # See https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
+    x2 = line_to[0]
+    x1 = line_from[0]
+    x0 = point[0]
+    y2 = line_to[1]
+    y1 = line_from[1]
+    y0 = point[1]
+
+    top_half = abs((x2 - x1) * (y1 - y0) - (x1 - x0) * (y2 - y1))
+    bottom_half = sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+    distance = top_half / bottom_half
+
+    return from_px(distance)

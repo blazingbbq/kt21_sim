@@ -1,4 +1,4 @@
-from typing import Callable, List, Tuple
+from typing import Callable, List, Tuple, Union
 from enum import Enum
 import pygame
 from abc import ABC
@@ -7,6 +7,13 @@ from action import Action
 from utils.distance.ruler import Ruler
 import utils.player_input
 import utils.distance
+import utils.collision
+
+ENGAGEMENT_RANGE_COLOR = 0x242726
+ENGAGEMENT_RANGE_OUTLINE_WIDTH = 1
+
+VALID_MOVE_RULER_COLOR = 0xffffff
+INVALID_MOVE_RULER_COLOR = 0xff0000
 
 
 class Order(Enum):
@@ -29,10 +36,13 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.apl_modifier = 0
         self.ruler = Ruler()
 
+        self.ghost_pos: Union[Tuple[int, int], None] = None
+
         # Status
         self.deployed = False
         self.ready = False
         self.visible = False
+        self.engagement_range_visible = False
 
         self.order = Order.CONCEAL
         self.action_points = 0
@@ -77,6 +87,26 @@ class Operative(pygame.sprite.Sprite, ABC):
     def unhighlight(self):
         self.outline_color = None
 
+    def show_engagement_range(self):
+        self.engagement_range_visible = True
+
+    def show_enemy_engagement_ranges(self):
+        for team in self.team.gamestate.teams:
+            if team == self.team:
+                continue
+            for operative in team.operatives:
+                operative.show_engagement_range()
+
+    def hide_engagement_range(self):
+        self.engagement_range_visible = False
+
+    def hide_enemy_engagement_ranges(self):
+        for team in self.team.gamestate.teams:
+            if team == self.team:
+                continue
+            for operative in team.operatives:
+                operative.hide_engagement_range()
+
     @property
     def order(self):
         return self._order
@@ -102,9 +132,16 @@ class Operative(pygame.sprite.Sprite, ABC):
             pygame.draw.circle(screen, self.outline_color,
                                self.rect.center, self.rect.width/2, self.outline_width)
 
+        if self.engagement_range_visible:
+            pygame.draw.circle(screen, ENGAGEMENT_RANGE_COLOR, self.rect.center, self.rect.width /
+                               2 + utils.distance.ENGAGEMENT_RANGE.to_screen_size(), ENGAGEMENT_RANGE_OUTLINE_WIDTH)
+
         # TODO: Display icon idicating current order
 
         self.render_group.draw(screen)
+        if self.ghost_pos != None:
+            pygame.draw.circle(screen, self.color, self.ghost_pos,
+                               self.rect.width/2, self.outline_width)
         self.ruler.redraw()
 
     @property
@@ -174,49 +211,112 @@ class Operative(pygame.sprite.Sprite, ABC):
     def register_on_activation_end(self, cb):
         self.on_activation_end.append(cb)
 
-    def enemies_within_engagement_range(self):
+    def enemies_within_engagement_range(self, point: Tuple[int, int] = None):
         within_engagement_range = []
         for enemy_team in [team for team in self.team.gamestate.teams if team != self.team]:
             for op in enemy_team.operatives:
-                if utils.distance.between(self.rect.center, op.rect.center) < utils.distance.TRIANGLE + self.datacard.physical_profile.base/2 + op.datacard.physical_profile.base/2:
+                if utils.distance.between(self.rect.center if point == None else point, op.rect.center) < utils.distance.TRIANGLE + self.datacard.physical_profile.base/2 + op.datacard.physical_profile.base/2:
                     within_engagement_range.append(op)
 
         return within_engagement_range
 
-    def perform_move(self, distance: utils.distance.Distance, falling_back: bool = False, charging: bool = False):
-        # TODO: Save current position in case we want to cancel move
+    def valid_move_location(self,
+                            location: Tuple[int, int],
+                            falling_back: bool = False,
+                            charging: bool = False):
+
+        # Check that operative can be placed at final destination (not overlapping other operatives' base)
+        for team in self.team.gamestate.teams:
+            for operative in team.operatives:
+                if operative == self:
+                    continue
+                if utils.distance.between(location, operative.rect.center) < self.datacard.physical_profile.base/2 + operative.datacard.physical_profile.base/2:
+                    return False
+
+        # Cannot move over the edge of the killzone
+        if not self.team.gamestate.gameboard.rect.collidepoint(location):
+            return False
+
+        # Cannot move through another unit (which is a subset of checking the engagement range)
+        # NOTE: (Needs clarification) Flying operatives can ignore engagement ranges while moving
+        # FIXME: If charging, cannot move through engagement range of other units unless another friendly operative is currently engaged with it
+        if not self.datacard.physical_profile.flying:
+            for team in self.team.gamestate.teams:
+                if team == self.team:
+                    continue
+
+                enemies_to_check = [op for op in team.operatives]
+                for operative in enemies_to_check:
+                    distance = utils.distance.between_line_and_point(
+                        self.ruler.source, self.ruler.destination, operative.rect.center)
+
+                    # If charging or falling back, only check for overlapping bases
+                    if charging or falling_back:
+                        if distance < self.datacard.physical_profile.base / 2 + operative.datacard.physical_profile.base / 2:
+                            return False
+                    elif distance < self.datacard.physical_profile.base / 2 + operative.datacard.physical_profile.base / 2 + utils.distance.ENGAGEMENT_RANGE:
+                        return False
+
+        # TODO: Cannot move through terrain, must traverse or climb over
+        #   - check for intersection with terrain, if it does, request cost_for_traversal() from it
+        #   - Must jump or drop across gaps / ledges (see terrain)
+
+        return True
+
+    def perform_move(self,
+                     distance: utils.distance.Distance,
+                     falling_back: bool = False,
+                     charging: bool = False):
+        # Save current position in case we want to cancel move
+        starting_pos = self.rect.center
+        successful_move = True
+
+        # Display engagement ranges of enemy operatives
+        self.show_enemy_engagement_ranges()
 
         # Create a new Distance object to prevent us from accidentally changing the reference we're given
         remaining_movement = utils.distance.Distance(distance)
         while remaining_movement > 0:
+            # TODO: Listen for ESCAPE and RETURN to cancel/confirm action
             for click_loc in utils.player_input.wait_for_click():
-                # Check that operative can be placed at final destination
-                # Cannot move over the edge of the killzone
-                # Cannot move through another unit (unless flying ?)
-                # Cannot move through terrain, must traverse or climb over
-                #   - check for intersection with terrain, if it does, request cost_for_traversal() from it
-                #   - Must jump or drop across gaps / ledges (see terrain)
-                # Cannot move within engagement range of enemy operative
-
-                # If falling_back, can move through engagement range of enemy units
-                # If charging, must finish move within engagement range of enemy unit
-                # If charging, cannot move through engagement range of other units unless another friendly operative is currently engaged with it
-
-                # TODO: Check all required conditions for the move
-                if click_loc != None:
+                move_is_valid = self.valid_move_location(
+                    self.ruler.destination, falling_back, charging)
+                # If we receive a click, check that the location is valid for movement
+                if click_loc != None and move_is_valid:
                     break
 
                 self.ruler.measure_and_show(
                     from_=self.rect.center,
                     towards=utils.player_input.mouse_pos(),
                     max_length=remaining_movement,
+                    color=VALID_MOVE_RULER_COLOR if move_is_valid else INVALID_MOVE_RULER_COLOR,
                 )
+                self.ghost_pos = self.ruler.destination  # Show ghost at target dest
                 self.team.gamestate.redraw()
 
-            self.ruler.hide()
+            # Move operative to end of the ruler's measured distance
             self.move_to(self.ruler.destination)
             self.team.gamestate.redraw()
             remaining_movement -= self.ruler.length.round_up(
                 increment=utils.distance.TRIANGLE)
 
-        return True
+        # Hide engagement ranges of enemy operatives
+        self.hide_enemy_engagement_ranges()
+
+        # If charging, must finish move within engagement range of enemy unit
+        num_enemies_within_engagement_range = len(
+            self.enemies_within_engagement_range())
+        if charging:
+            if num_enemies_within_engagement_range <= 0:
+                successful_move = False
+        # Otherwise, cannot end move within engagement range of enemy operative
+        elif num_enemies_within_engagement_range > 0:
+            successful_move = False
+
+        self.ghost_pos = None
+        self.ruler.hide()
+        if successful_move == False:
+            self.move_to(starting_pos)
+        self.team.gamestate.redraw()
+
+        return successful_move

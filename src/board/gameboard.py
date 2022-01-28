@@ -8,6 +8,7 @@ GAMEBOARD_HEIGHT = 30
 
 # Padding around gameboard (in pixels)
 GAMEBOARD_PADDING = 5
+GAMEBOARD_BORDER_WIDTH = 1
 
 
 class GameBoard:
@@ -50,7 +51,8 @@ class GameBoard:
     def redraw(self):
         screen = pygame.display.get_surface()
         pygame.draw.rect(screen, self.board_color, self.rect)
-        pygame.draw.rect(screen, self.border_color, self.rect, 1)
+        pygame.draw.rect(screen, self.border_color,
+                         self.rect, GAMEBOARD_BORDER_WIDTH)
 
         # Redraw terrain
         self.terrain.redraw()

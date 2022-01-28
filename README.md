@@ -12,6 +12,10 @@ pip install pygame pygame_gui -U
 ./run
 ```
 
+## Gameplay Notes
+
+Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm actions (and end them early)
+
 ## Roadmap
 
 - [ ] Top level gamestate namespace class with utilities:

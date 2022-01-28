@@ -2,7 +2,8 @@ from state.gamestate import *
 from state.team import *
 from operatives import *
 import game.screen
-import utils.distance
+
+DEBUG = True
 
 
 class KT21Sim:
@@ -20,7 +21,7 @@ class KT21Sim:
         gamestate.add_teams(team1, team2)
 
         team1.add_operatives(TrooperVeteran())
-        team2.add_operatives(TrooperVeteran())
+        team2.add_operatives(KommandoBoy())
 
         # Run through game phases
         gamestate.redraw()

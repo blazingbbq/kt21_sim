@@ -40,7 +40,7 @@ def wait_for_click():
         # Wait for mouse to be released
         while left_mb_down():
             yield None
-        # Finally, yeild mouse position for click
+        # Finally, yield mouse position for click
         yield mouse_pos()
 
 
