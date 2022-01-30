@@ -25,11 +25,11 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
             - Maybe models check these whenever they perform their own state change callbacks
     - [x] Utility for determining valid movement destinations
         - [ ] Include support for difficult terrain traversal
-    - [ ] Utilites for determining valid targets
+    - [x] Utilites for determining valid targets
         - [x] shoot
             - [ ] Include support for cover / obscuring
         - [x] charge
-        - [ ] fight
+        - [x] fight
     - [x] Utility for rolling dice
     - [ ] Utility for determining which team controls objective based on models within range
     - [ ] Have chain activation queue that can insert other units so that they are activated immediately following another operative's activation.
@@ -40,7 +40,7 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
         - [ ] Allow players to pick tacops at start of game
         - [ ] Allow choice between the available archetypes satisfied by faction / fireteam
     - [ ] Add utilities for scoring victory points
-- [ ] Add standalone utility classes for resolving shooting / fighting
+- [x] Add standalone utility classes for resolving shooting / fighting
     - [ ] Retaining dice for cover (include callback for special handling like retaining 2 dice instead of one?)
 - [x] Turnphase objects for each phase in the game. Loop through these until all turns have elapsed
     - [ ] Callback hooks for different phases of the game where armies could have actions to take (e.g. guardsmen orders)
@@ -60,7 +60,7 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
 - [ ] Strategic Ploy object
 - [x] Weapon Object
     - [ ] `on_crit` callback
-    - [ ] Add support for special rules (ceaseless, relentless, etc.)
+    - [ ] Add support for all special rules (ceaseless, relentless, etc.)
 - [ ] Equipement Object
 - [ ] Tags namespace that manages all possible model tags
 - [ ] Mission objective objects
