@@ -16,9 +16,71 @@ pip install pygame pygame_gui -U
 
 Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm actions (and end them early)
 
-## Roadmap
+## Core Rules
 
-- [ ] Top level gamestate namespace class with utilities:
+- [ ] Tools of War
+    - [x] Operatives
+    - [ ] Kill Teams
+    - [x] Distances
+    - [ ] Killzones
+    - [x] Dice
+- [x] Datacards
+    - [x] Engagement Range
+    - [x] Modifying Characteristics
+    - [ ] Fire Teams
+- [x] Battle Structure
+- [x] Initiative Phase
+    - [x] Ready Operatives
+    - [x] Determine Initiative
+- [x] Strategy Phase
+    - [x] Generate Command Points
+    - [ ] Play Strategic Ploys
+    - [ ] Target Reveal
+- [ ] Firefight Phase
+    - [x] Perform Actions
+    - [ ] Overwatch
+    - [x] Actions
+        - [x] Normal Move
+        - [x] Fly
+        - [x] Charge
+        - [x] Fall Back
+        - [x] Dash
+        - [x] Pass
+        - [ ] Overwatch
+        - [ ] Pick Up
+        - [x] Shoot
+        - [x] Fight
+- [x] Wounds and Damage
+- [ ] Controlling Objective Markers and Tokens
+- [ ] Line of Sight
+    - [ ] Visible
+    - [ ] Obscured
+    - [ ] Cover
+- [ ] Killzones
+    - [ ] Terrain Traits
+        - [ ] Heavy
+        - [ ] Light
+        - [ ] Traversable
+        - [ ] Insignificant
+        - [ ] Scalable
+        - [ ] Barricades
+        - [ ] Vantage Point
+    - [ ] Moving Through Terrain
+        - [ ] Traverse
+        - [ ] Jump
+        - [ ] Climb
+        - [ ] Drop
+        - [ ] Flying Over Terrain
+    - [ ] Example Boards
+    - [ ] Example Terrain Features
+- [ ] Ways to Play
+    - [ ] Open Play
+    - [ ] Matched Play
+    - [ ] Narrative Play
+
+## Development Roadmap
+
+- [x] Top level gamestate namespace class with utilities:
     - [x] Pump utility for use while game objects are spinning (e.g. waiting for user input). Should pump pygame / check quit events
     - [ ] Callbacks for team wide action events?
         - [ ] `on_shoot`, `on_damage`, `on_fight` ?
