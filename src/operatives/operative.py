@@ -12,6 +12,9 @@ import utils.collision
 ENGAGEMENT_RANGE_COLOR = 0x242726
 ENGAGEMENT_RANGE_OUTLINE_WIDTH = 1
 
+WEAPON_RANGE_COLOR = 0x242726
+WEAPON_RANGE_OUTLINE_WIDTH = 1
+
 VALID_MOVE_RULER_COLOR = 0xffffff
 INVALID_MOVE_RULER_COLOR = 0xff0000
 
@@ -38,6 +41,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.ruler = Ruler()
 
         self.ghost_pos: Union[Tuple[int, int], None] = None
+        self.range_radius: Union[utils.distance.Distance, None] = None
 
         # Properties
         self.apl_modifier = 0
@@ -111,6 +115,12 @@ class Operative(pygame.sprite.Sprite, ABC):
             for operative in team.operatives:
                 operative.hide_engagement_range()
 
+    def display_range(self, range: utils.distance.Distance):
+        self.range_radius = range
+
+    def hide_range(self):
+        self.range_radius = None
+
     def deal_damage(self, num: int):
         self.wounds -= num
 
@@ -160,6 +170,10 @@ class Operative(pygame.sprite.Sprite, ABC):
         if self.engagement_range_visible:
             pygame.draw.circle(screen, ENGAGEMENT_RANGE_COLOR, self.rect.center, self.rect.width /
                                2 + utils.distance.ENGAGEMENT_RANGE.to_screen_size(), ENGAGEMENT_RANGE_OUTLINE_WIDTH)
+
+        if self.range_radius:
+            pygame.draw.circle(screen, WEAPON_RANGE_COLOR, self.rect.center,
+                               self.range_radius.to_screen_size(), WEAPON_RANGE_OUTLINE_WIDTH)
 
         # TODO: Display icon idicating current order
         # TODO: Injured icon
@@ -384,9 +398,8 @@ class Operative(pygame.sprite.Sprite, ABC):
                 continue
             for operative in team.operatives:
                 # Check weapon's range, if it has one
-                weapon_range = weapon.range
-                if weapon_range and utils.distance.between(self.rect.center, operative.rect.center) > \
-                        weapon_range + self.datacard.physical_profile.base / 2 + operative.datacard.physical_profile.base / 2:
+                if weapon.range and utils.distance.between(self.rect.center, operative.rect.center) > \
+                        weapon.range + self.datacard.physical_profile.base / 2 + operative.datacard.physical_profile.base / 2:
                     continue
 
                 # Enemy is valid target if it is within Line of Sight
@@ -414,6 +427,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         if len(valid_targets) <= 0:
             return False  # No valid targets
 
+        self.display_range(selected_weapon.range)
         [op.highlight(VALID_TARGET_HIGHLIGHT_COLOR) for op in valid_targets]
         for click_loc in utils.player_input.wait_for_click():
             if click_loc != None:
@@ -423,6 +437,7 @@ class Operative(pygame.sprite.Sprite, ABC):
                     break
             self.team.gamestate.redraw()
         [op.unhighlight() for op in valid_targets]
+        self.hide_range()
         self.team.gamestate.redraw()
 
         # Perform shoot action
