@@ -15,6 +15,8 @@ ENGAGEMENT_RANGE_OUTLINE_WIDTH = 1
 VALID_MOVE_RULER_COLOR = 0xffffff
 INVALID_MOVE_RULER_COLOR = 0xff0000
 
+VALID_TARGET_HIGHLIGHT_COLOR = 0x00ff00
+
 
 class Order(Enum):
     ENGAGE = 1
@@ -33,19 +35,21 @@ class Operative(pygame.sprite.Sprite, ABC):
         # Game object init
         self.datacard = datacard
         self.render_group = pygame.sprite.RenderPlain()
-        self.apl_modifier = 0
         self.ruler = Ruler()
 
         self.ghost_pos: Union[Tuple[int, int], None] = None
+
+        # Properties
+        self.apl_modifier = 0
+        self.order = Order.CONCEAL
+        self.action_points = 0
+        self.wounds = self.datacard.physical_profile.wounds
 
         # Status
         self.deployed = False
         self.ready = False
         self.visible = False
         self.engagement_range_visible = False
-
-        self.order = Order.CONCEAL
-        self.action_points = 0
 
         # Sprite init
         pygame.sprite.Sprite.__init__(self)
@@ -107,6 +111,20 @@ class Operative(pygame.sprite.Sprite, ABC):
             for operative in team.operatives:
                 operative.hide_engagement_range()
 
+    def deal_damage(self, num: int):
+        self.wounds -= num
+
+    def deal_mortal_wounds(self, num: int):
+        self.deal_damage(num)
+
+    @property
+    def injured(self):
+        return self.wounds < self.datacard.physical_profile.wounds // 2
+
+    @property
+    def incapacitated(self):
+        return self.wounds <= 0
+
     @property
     def order(self):
         return self._order
@@ -137,6 +155,7 @@ class Operative(pygame.sprite.Sprite, ABC):
                                2 + utils.distance.ENGAGEMENT_RANGE.to_screen_size(), ENGAGEMENT_RANGE_OUTLINE_WIDTH)
 
         # TODO: Display icon idicating current order
+        # TODO: Injured icon
 
         self.render_group.draw(screen)
         if self.ghost_pos != None:
@@ -158,6 +177,15 @@ class Operative(pygame.sprite.Sprite, ABC):
         else:
             self._apl_modifier = 0
 
+    @property
+    def bs_ws_modifier(self):
+        return -1 if self.injured else 0
+
+    @property
+    def movement_characteristic(self):
+        movement_modifier = utils.distance.CIRCLE if self.injured else 0
+        return self.datacard.physical_profile.movement + movement_modifier
+
     def activate(self):
         # Select engage/conceal order
         if self.team.gamestate.current_turn != 1:
@@ -168,7 +196,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         # While the operative has action points remaining, perform actions
         while self.action_points > -1:
             valid_actions = {
-                a.name: a for a in self.actions if a.cost(self.free_actions) <= self.action_points and a.valid_this_turn(a, self)}
+                a.description: a for a in self.actions if a.cost(self.free_actions) <= self.action_points and a.valid_this_turn(a, self)}
             if len(valid_actions) <= 0:
                 # Nothing else to do!
                 break
@@ -219,6 +247,8 @@ class Operative(pygame.sprite.Sprite, ABC):
                     within_engagement_range.append(op)
 
         return within_engagement_range
+
+    # Move Action
 
     def valid_move_location(self,
                             location: Tuple[int, int],
@@ -320,3 +350,77 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.team.gamestate.redraw()
 
         return successful_move
+
+    # Shoot Action
+
+    def select_ranged_weapon(self):
+        ranged_weapons = {
+            weapon.description: weapon for weapon in self.datacard.ranged_weapon_profiles}
+        for selection in utils.player_input.select_from_list(relative_to=self.rect.center,
+                                                             items=ranged_weapons.keys()):
+            if selection != None:
+                return ranged_weapons.get(selection)
+            self.team.gamestate.redraw()
+
+    def in_line_of_sight(self, op):
+        from operatives import Operative
+        enemy: Operative = op
+
+        # TODO: Determine if target is within line of sight using terrain
+
+        return True
+
+    def get_valid_targets(self, weapon: Weapon):
+        valid_targets = []
+        for team in self.team.gamestate.teams:
+            if team == self.team:
+                continue
+            for operative in team.operatives:
+                # Check weapon's range, if it has one
+                weapon_range = weapon.range
+                if weapon_range and utils.distance.between(self, operative) > weapon_range:
+                    continue
+
+                # Enemy is valid target if it is within Line of Sight
+                # and has no friendly operatives within engagement range
+                if self.in_line_of_sight(operative):
+                    valid = True
+                    enemy_engaged_with = operative.enemies_within_engagement_range()
+                    for friendly in self.team.operatives:
+                        if friendly in enemy_engaged_with:
+                            valid = False
+                            break
+                    if valid:
+                        valid_targets.append(operative)
+
+        return valid_targets
+
+    def perform_shoot(self):
+        # Select ranged weapon
+        if len(self.datacard.ranged_weapon_profiles) <= 0:
+            return False  # Nothing to shoot with
+        selected_weapon = self.select_ranged_weapon()
+
+        # Select valid target
+        valid_targets = self.get_valid_targets(selected_weapon)
+        if len(valid_targets) <= 0:
+            return False  # No valid targets
+
+        [op.highlight(VALID_TARGET_HIGHLIGHT_COLOR) for op in valid_targets]
+        for click_loc in utils.player_input.wait_for_click():
+            if click_loc != None:
+                defender = utils.collision.get_selected_sprite(
+                    click_loc, valid_targets)
+                if defender != None:
+                    break
+            self.team.gamestate.redraw()
+        [op.unhighlight() for op in valid_targets]
+        self.team.gamestate.redraw()
+
+        # Perform shoot action
+        successful_shooting = selected_weapon.shoot(
+            attacker=self,
+            defender=defender,
+        )
+
+        return successful_shooting

@@ -10,7 +10,7 @@ def perform_normal_move(op):
     operative: Operative = op
 
     return operative.perform_move(
-        distance=operative.datacard.physical_profile.movement,
+        distance=operative.movement_characteristic,
     )
 
 
@@ -18,8 +18,7 @@ def perform_shoot(op):
     from operatives import Operative
     operative: Operative = op
 
-    # TODO: Implement shoot action
-    return True
+    return operative.perform_shoot()
 
 
 def perform_charge(op):
@@ -27,7 +26,7 @@ def perform_charge(op):
     operative: Operative = op
 
     return operative.perform_move(
-        distance=operative.datacard.physical_profile.movement + utils.distance.SQUARE,
+        distance=operative.movement_characteristic + utils.distance.CIRCLE,
         charging=True,
     )
 
@@ -54,7 +53,7 @@ def perform_fall_back(op):
     operative: Operative = op
 
     return operative.perform_move(
-        distance=operative.datacard.physical_profile.movement,
+        distance=operative.movement_characteristic,
         falling_back=True,
     )
 

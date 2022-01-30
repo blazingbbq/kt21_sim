@@ -51,14 +51,14 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
         - [ ] Show action description on hover?
     - [ ] List of Abilities (passive and active)
     - [ ] List of Equipement
-    - [ ] List of Weapons
+    - [x] List of Weapons
     - [ ] List of Tags this unit qualifies, helps when determining validity of target selection
     - [ ] Callbacks for character state changes:
         - [ ] `after_activation` or `on_activation_end`
-    - [ ] Handle "injured" state
+    - [x] Handle "injured" state
     - [x] Manage engage/conceal order
 - [ ] Strategic Ploy object
-- [ ] Weapon Object
+- [x] Weapon Object
     - [ ] `on_crit` callback
     - [ ] Add support for special rules (ceaseless, relentless, etc.)
 - [ ] Equipement Object

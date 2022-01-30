@@ -26,3 +26,8 @@ class Action:
         if self.name in free_actions:
             return 0
         return self.ap_cost
+
+    @property
+    def description(self):
+        # TODO: Display AP cost?
+        return f"{self.name}"

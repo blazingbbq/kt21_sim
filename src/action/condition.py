@@ -36,6 +36,12 @@ def not_within_engagement_range_of_enemy(ac, op):
     return not within_engagement_range_of_enemy(ac, op)
 
 
+def has_ranged_weapon(_, op):
+    from operatives import Operative
+    operative: Operative = op
+
+    return len(operative.datacard.ranged_weapon_profiles) > 0
+
 def able_to_pickup_objective(_, op):
     # TODO: Check if within range of an objective marker
     # Find objectives within range of operative
@@ -85,12 +91,12 @@ def can_move():
 def can_shoot():
     return all_of(
         once_per_turn,
-        not_within_engagement_range_of_enemy,
         one_of(
             not_concealed,
             # TODO: OR has a silent weapon
         ),
-        not_within_engagement_range_of_enemy
+        not_within_engagement_range_of_enemy,
+        has_ranged_weapon,
     )
 
 
