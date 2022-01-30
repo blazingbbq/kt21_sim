@@ -447,3 +447,52 @@ class Operative(pygame.sprite.Sprite, ABC):
         )
 
         return successful_shooting
+
+    # Fight Action
+
+    def get_valid_fight_targets(self):
+        return self.enemies_within_engagement_range()
+
+    def select_melee_weapon(self):
+        melee_weapons = {
+            weapon.description: weapon for weapon in self.datacard.melee_weapon_profiles}
+        if len(melee_weapons) <= 0:
+            return None
+
+        for selection in utils.player_input.select_from_list(relative_to=self.rect.center,
+                                                             items=melee_weapons.keys()):
+            if selection != None:
+                return melee_weapons.get(selection)
+            self.team.gamestate.redraw()
+
+    def perform_fight(self):
+        # Select valid target
+        valid_targets = self.get_valid_fight_targets()
+        if len(valid_targets) <= 0:
+            return False  # No valid fight targets
+
+        self.show_engagement_range()
+        [op.highlight(VALID_TARGET_HIGHLIGHT_COLOR) for op in valid_targets]
+        for click_loc in utils.player_input.wait_for_click():
+            if click_loc != None:
+                defender = utils.collision.get_selected_sprite(
+                    click_loc, valid_targets)
+                if defender != None:
+                    break
+            self.team.gamestate.redraw()
+        [op.unhighlight() for op in valid_targets]
+        self.hide_engagement_range()
+        self.team.gamestate.redraw()
+
+        # Select melee weapons (both players)
+        if len(self.datacard.melee_weapon_profiles) <= 0:
+            return False  # Nothing to fight with
+        selected_weapon = self.select_melee_weapon()
+        defender_selected_weapon = defender.select_melee_weapon()
+
+        # Perform fight action
+        return selected_weapon.fight(
+            attacker=self,
+            defender=defender,
+            defender_weapon=defender_selected_weapon,
+        )

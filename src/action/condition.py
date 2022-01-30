@@ -42,6 +42,14 @@ def has_ranged_weapon(_, op):
 
     return len(operative.datacard.ranged_weapon_profiles) > 0
 
+
+def has_melee_weapon(_, op):
+    from operatives import Operative
+    operative: Operative = op
+
+    return len(operative.datacard.melee_weapon_profiles) > 0
+
+
 def able_to_pickup_objective(_, op):
     # TODO: Check if within range of an objective marker
     # Find objectives within range of operative
@@ -49,7 +57,7 @@ def able_to_pickup_objective(_, op):
     # Check that operative is not carrying another objective
     return False
 
-### Action bundling
+# Action bundling
 
 
 def all_of(*conds):
@@ -75,7 +83,7 @@ def one_of(*conds):
         return False
     return _check_all_conds
 
-### Operative Action Conditions
+# Operative Action Conditions
 
 
 def can_move():
@@ -117,6 +125,7 @@ def can_fight():
     return all_of(
         once_per_turn,
         within_engagement_range_of_enemy,
+        has_melee_weapon,
     )
 
 

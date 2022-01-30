@@ -35,8 +35,7 @@ def perform_fight(op):
     from operatives import Operative
     operative: Operative = op
 
-    # TODO: Implement fight action
-    return True
+    return operative.perform_fight()
 
 
 def perform_dash(op):

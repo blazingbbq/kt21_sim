@@ -43,22 +43,6 @@ class Dice:
     def __str__(self) -> str:
         return f"{self.value}"
 
-    @property
-    def icon(self) -> str:
-        if self.value == 1:
-            return "⚀"
-        if self.value == 2:
-            return "⚁"
-        if self.value == 3:
-            return "⚂"
-        if self.value == 4:
-            return "⚃"
-        if self.value == 5:
-            return "⚄"
-        if self.value == 6:
-            return "⚅"
-        return "□"
-
 
 def roll():
     """Rolls a d6.

@@ -3,7 +3,7 @@
 from abc import ABC
 from enum import Enum
 from tokenize import Special
-from typing import List, Tuple
+from typing import List, Tuple, Union
 import utils.dice
 import utils.distance
 import game.ui
@@ -28,8 +28,8 @@ class Weapon(ABC):
                  attacks: int,
                  skill: int,  # Either BallisticSkill / WeaponSkill
                  damage: Tuple[int, int],  # Damage tuple: (Normal, Crit)
-                 # TODO: Add special rules and crit callbacks
                  special_rules: List[SpecialRule] = [],
+                 # TODO: Add crit callbacks
                  critical_hit_rules: List[int] = [],
                  ):
         self.name = name
@@ -69,6 +69,8 @@ class Weapon(ABC):
     def critical_damage(self):
         return self.damage[1]
 
+    # Shooting
+
     def discard_attack_dice(self, roll: utils.dice.Dice, op):
         from operatives import Operative
         attacker: Operative = op
@@ -76,7 +78,7 @@ class Weapon(ABC):
         if SpecialRule.HOT in self.special_rules:
             attacker.deal_mortal_wounds(3)
 
-    def roll_attack_dice(self, attacker, defender) -> Tuple[List[utils.dice.Dice], List[utils.dice.Dice]]:
+    def roll_attack_dice(self, attacker, defender, fighting: bool = False) -> Tuple[List[utils.dice.Dice], List[utils.dice.Dice]]:
         from operatives import Operative
         attacker: Operative = attacker
         defender: Operative = defender
@@ -91,6 +93,7 @@ class Weapon(ABC):
         for roll in rolls:
             # Result of 1 is always a failed hit, else check BS
             # Result of 6 is always a successful hit
+            # TODO: If fighting, improve WS through combat support
             if (roll == 1 or roll < self.skill + attacker.bs_ws_modifier) and roll != 6:
                 self.discard_attack_dice(roll, attacker)
                 continue
@@ -137,7 +140,7 @@ class Weapon(ABC):
         element_padding = 5
 
         # Panel
-        panel_rect = relative_rect = pygame.rect.Rect((0, 0), (400, 250))
+        panel_rect = pygame.rect.Rect((0, 0), (400, 250))
         panel_rect.center = game.ui.layout.window.center
         panel = game.ui.elements.UIPanel(
             relative_rect=panel_rect,
@@ -269,6 +272,234 @@ class Weapon(ABC):
         # Resolve successful hits
         defender.deal_damage(remaining_normal_hits * self.normal_damage +
                              remaining_crit_hits * self.critical_damage)
+
+        # Remove incapacitated operatives
+        attacker.remove_incapacitated()
+        defender.remove_incapacitated()
+
+        return True
+
+    # Fighting
+
+    def resolve_fight_attacks(self,
+                              attacker,
+                              defender,
+                              defender_weapon,
+                              attacker_dice: Tuple[List[utils.dice.Dice], List[utils.dice.Dice]],
+                              defender_dice: Tuple[List[utils.dice.Dice], List[utils.dice.Dice]]):
+        from operatives import Operative
+        attacker: Operative = attacker
+        defender: Operative = defender
+        from weapons import Weapon
+        defender_weapon: Weapon = defender_weapon
+
+        text_height = 20
+        button_height = 24
+        element_padding = 5
+
+        # Panel
+        panel_rect = pygame.rect.Rect((0, 0), (400, 250))
+        panel_rect.center = game.ui.layout.window.center
+        panel = game.ui.elements.UIPanel(
+            relative_rect=panel_rect,
+            manager=game.ui.manager,
+            starting_layer_height=0,
+            container=game.ui.layout.window_container,
+            margins=game.ui.layout.default_margins,
+        )
+
+        panel_inner_rect = pygame.rect.Rect(
+            0, 0, panel_rect.width - panel.container_margins['left'] - panel.container_margins['right'], panel_rect.height - panel.container_margins['top'] - panel.container_margins['bottom'])
+        # Top label
+        label = game.ui.elements.UILabel(
+            relative_rect=pygame.rect.Rect(
+                0, 0, panel_rect.width, text_height),
+            text="Resolve Successful Hits",
+            container=panel,
+            manager=game.ui.manager,
+        )
+        # Parry and Strike buttons
+        parry_button = game.ui.elements.UIButton(
+            relative_rect=pygame.Rect(
+                0, panel_inner_rect.bottom - button_height, panel_inner_rect.width / 2, button_height),
+            text="Parry",
+            starting_height=1,
+            container=panel,
+            manager=game.ui.manager,
+            visible=True,
+        )
+        strike_button = game.ui.elements.UIButton(
+            relative_rect=pygame.Rect(panel_inner_rect.width / 2, panel_inner_rect.bottom -
+                                      button_height, panel_inner_rect.width / 2, button_height),
+            text="Strike",
+            starting_height=1,
+            container=panel,
+            manager=game.ui.manager,
+            visible=True,
+        )
+
+        # Dice lists
+        defence_label = game.ui.elements.UILabel(
+            relative_rect=pygame.rect.Rect(
+                panel_inner_rect.width / 2, text_height + element_padding, panel_inner_rect.width / 2, text_height),
+            text="Defender's Dice",
+            container=panel,
+            manager=game.ui.manager,
+        )
+        attack_label = game.ui.elements.UILabel(
+            relative_rect=pygame.rect.Rect(
+                0, text_height + element_padding, panel_inner_rect.width / 2, text_height),
+            text="Attacker's Dice",
+            container=panel,
+            manager=game.ui.manager,
+        )
+        list_height = panel_inner_rect.height - 2 * \
+            text_height - button_height - 3 * element_padding
+        defender_dice_selection = game.ui.elements.UISelectionList(
+            relative_rect=pygame.Rect(panel_inner_rect.width / 2, 2 * text_height +
+                                      2 * element_padding, panel_inner_rect.width / 2, list_height),
+            item_list=[f"{CRIT_DICE_SYMBOL} {dice.value}" for dice in defender_dice[1]
+                       ] + [f"{NORMAL_DICE_SYMBOL} {dice.value}" for dice in defender_dice[0]],
+            allow_multi_select=False,
+            container=panel,
+            manager=game.ui.manager)
+        attacker_dice_selection = game.ui.elements.UISelectionList(
+            relative_rect=pygame.Rect(
+                0, 2 * text_height + 2 * element_padding, panel_inner_rect.width / 2, list_height),
+            item_list=[f"{CRIT_DICE_SYMBOL} {dice.value}" for dice in attacker_dice[1]
+                       ] + [f"{NORMAL_DICE_SYMBOL} {dice.value}" for dice in attacker_dice[0]],
+            allow_multi_select=False,
+            container=panel,
+            manager=game.ui.manager)
+
+        # Repeat until one operative is incapacitated
+        resolve_for = None
+        while not attacker.incapacitated and not defender.incapacitated:
+            # Starting with the attacker, each player alternates resolving one of their successful hits.
+            resolve_for = attacker if resolve_for != attacker else defender
+
+            # Setup for next resolution
+            if resolve_for == attacker:
+                receiver = defender
+                resolving_weapon = self
+
+                resolver_dice_list = attacker_dice_selection
+                other_dice_list = defender_dice_selection
+            else:
+                receiver = attacker
+                resolving_weapon = defender_weapon
+
+                resolver_dice_list = defender_dice_selection
+                other_dice_list = attacker_dice_selection
+
+            # Check number of remaining resolvable dice
+            if len(resolver_dice_list._raw_item_list) <= 0:
+                if len(other_dice_list._raw_item_list) <= 0:
+                    # No dice left for either, all done
+                    break
+                # No dice left for resolver, skip
+                continue
+
+            resolver_dice_list.enable()
+            other_dice_list.disable()
+            parry_button.disable()
+            strike_button.disable()
+
+            # To resolve a successful hit, they select one of their retained attack dice,
+            # choose for their operative to strike or parry, then discard that attack dice.
+            while True:
+                dice_selection = resolver_dice_list.get_single_selection()
+                # Enable resolution buttons once a selection is made
+                if dice_selection != None:
+                    parry_button.enable()
+                    strike_button.enable()
+
+                if strike_button.check_pressed() and dice_selection != None:
+                    striking = True
+                    break
+                if parry_button.check_pressed() and dice_selection != None:
+                    striking = False
+                    parry_button.disable()
+                    break
+                game.state.redraw()
+
+            # Discard attack dice
+            resolver_dice_list._raw_item_list.remove(dice_selection)
+            resolver_dice_list.set_item_list(resolver_dice_list._raw_item_list)
+
+            resolver_dice_list.disable()
+            other_dice_list.enable()
+
+            critical_hit = dice_selection.startswith(CRIT_DICE_SYMBOL)
+            # If they parry, one of their opponent’s successful hits is discarded
+            while not striking:
+                # Ensure that parry is possible
+                if len(other_dice_list._raw_item_list) <= 0:
+                    # Nothing to parry
+                    break
+
+                if strike_button.check_pressed():
+                    # Switch attack dice to strike
+                    striking = True
+                    break
+
+                # Select dice to parry
+                selection = other_dice_list.get_single_selection()
+                if selection != None:
+                    if critical_hit:
+                        # If the attack dice they select is a critical hit, they select one of their opponent’s normal hits or critical hits to be discarded.
+                        other_dice_list._raw_item_list.remove(selection)
+                        other_dice_list.set_item_list(
+                            other_dice_list._raw_item_list)
+                        break
+                    elif selection.startswith(NORMAL_DICE_SYMBOL):
+                        # If the attack dice they select is a normal hit, they select one of their opponent’s normal hits to be discarded.
+                        other_dice_list._raw_item_list.remove(selection)
+                        other_dice_list.set_item_list(
+                            other_dice_list._raw_item_list)
+                        break
+
+                game.state.redraw()
+
+            # If they strike, inflict damage on the target.
+            if striking:
+                other_dice_list.disable()
+
+                if critical_hit:
+                    # If the attack dice they select is a critical hit, inflict damage equal to their selected weapon’s Critical Damage.
+                    receiver.deal_damage(resolving_weapon.critical_damage)
+                else:
+                    # If the attack dice they select is a normal hit, inflict damage equal to their selected weapon’s Normal Damage.
+                    receiver.deal_damage(resolving_weapon.normal_damage)
+
+        # Cleanup UI panel
+        game.ui.remove(panel)
+        game.state.redraw()
+
+    def fight(self, attacker, defender, defender_weapon):
+        from operatives import Operative
+        attacker: Operative = attacker
+        defender: Operative = defender
+        defender_weapon: Union[Weapon, None] = defender_weapon
+
+        # Roll attack dice (both weapons)
+        attacker_dice = self.roll_attack_dice(
+            attacker=attacker,
+            defender=defender,
+            fighting=True,
+        )
+        defender_dice = ([], []) if defender_weapon == None else defender_weapon.roll_attack_dice(
+            attacker=defender,
+            defender=attacker,
+            fighting=True,
+        )
+
+        # Resolve successful hits
+        self.resolve_fight_attacks(attacker=attacker,
+                                   defender=defender,
+                                   defender_weapon=defender_weapon,
+                                   attacker_dice=attacker_dice,
+                                   defender_dice=defender_dice)
 
         # Remove incapacitated operatives
         attacker.remove_incapacitated()
