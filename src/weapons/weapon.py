@@ -423,10 +423,6 @@ class Weapon(ABC):
                     break
                 game.state.redraw()
 
-            # Discard attack dice
-            resolver_dice_list._raw_item_list.remove(dice_selection)
-            resolver_dice_list.set_item_list(resolver_dice_list._raw_item_list)
-
             resolver_dice_list.disable()
             other_dice_list.enable()
 
@@ -471,6 +467,10 @@ class Weapon(ABC):
                 else:
                     # If the attack dice they select is a normal hit, inflict damage equal to their selected weapon’s Normal Damage.
                     receiver.deal_damage(resolving_weapon.normal_damage)
+
+            # Discard attack dice
+            resolver_dice_list._raw_item_list.remove(dice_selection)
+            resolver_dice_list.set_item_list(resolver_dice_list._raw_item_list)
 
         # Cleanup UI panel
         game.ui.remove(panel)

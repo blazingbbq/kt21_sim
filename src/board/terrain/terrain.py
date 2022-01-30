@@ -5,5 +5,5 @@ class Terrain:
         self.barricades = []
 
     def redraw(self):
-        """"""
         # TODO: Render all terrain objects in render group
+        pass

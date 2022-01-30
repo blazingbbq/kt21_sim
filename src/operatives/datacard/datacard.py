@@ -9,12 +9,11 @@ class Datacard:
                  operative_type: str,
                  physical_profile: PhysicalProfile,
                  ranged_weapon_profiles: List[Weapon],
+                 melee_weapon_profiles: List[Weapon],
                  # TODO: Add classes for these parameters
-                 melee_weapon_profiles,
                  abilities,
                  unique_actions: List[Action],
-                 keywords,
-                 ):
+                 keywords):
         self.operative_type = operative_type
         self.physical_profile = physical_profile
         self.ranged_weapon_profiles = ranged_weapon_profiles

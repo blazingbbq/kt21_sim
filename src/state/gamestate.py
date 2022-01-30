@@ -6,10 +6,10 @@ import game.events
 import game.screen
 import game.ui
 
+MAX_TURNS = 4
 
-# TODO: Probably want to move this to game.state instead of state.gamestate
+
 class GameState:
-    MAX_TURNS = 4
 
     def __init__(self):
         self.teams: Team = []
@@ -24,7 +24,7 @@ class GameState:
         self.add_phases(self.initiative_phase,
                         self.strategy_phase, self.firefight_phase)
 
-        self.max_turns = self.MAX_TURNS
+        self.max_turns = MAX_TURNS
         self.current_turn = 1
 
         # TODO: Track Mission

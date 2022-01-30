@@ -11,7 +11,7 @@ class InitiativePhase(Phase):
     def ready_operatives(self):
         for team in self.gamestate.teams:
             for operative in team.operatives:
-                operative.ready = True
+                operative.ready_up()
 
     def determine_initiative(self):
         # NOTE: Initiative does not need to be rolled on first turn, it is determined in setup phase

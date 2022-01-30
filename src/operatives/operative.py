@@ -83,6 +83,9 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.visible = True
         self.select_order()
 
+    def ready_up(self):
+        self.ready = True
+
     def show(self):
         self.visible = True
 

@@ -29,5 +29,4 @@ class Action:
 
     @property
     def description(self):
-        # TODO: Display AP cost?
-        return f"{self.name}"
+        return f"{self.name} {self.ap_cost}AP"

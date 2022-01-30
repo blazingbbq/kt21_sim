@@ -24,15 +24,19 @@ class Team:
         # Team based callbacks
         self.on_initiative_roll: list[Callable[[int], int]] = []
 
+    @property
+    def name(self):
+        # TODO: Use the faction's name
+        return "Team {}".format(self.team_id)
+
     def create_ui(self):
         # TODO: What to do if there's more than 2 teams?
         self.side_panel = game.ui.layout.left_panel if self.team_id % 2 == 0 else game.ui.layout.right_panel
 
-        # FIXME: Replace with faction name
         self.faction_name_label = game.ui.elements.UILabel(
-            relative_rect=pygame.Rect(
-                0, 0, -1, -1),  # NOTE: Width/height -1 => size to text
-            text="Team {}".format(self.team_id),
+            # NOTE: Width/height -1 => size to text
+            relative_rect=pygame.Rect(0, 0, -1, -1),
+            text=self.name,
             manager=game.ui.manager,
             container=self.side_panel)
 
