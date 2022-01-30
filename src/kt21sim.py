@@ -2,6 +2,7 @@ from state.gamestate import *
 from state.team import *
 from operatives import *
 import game.screen
+import game.state
 
 DEBUG = True
 
@@ -13,13 +14,14 @@ class KT21Sim:
         game.ui.init()
 
         # Init gamestate
-        gamestate: GameState = GameState()
+        gamestate: GameState = game.state.init()
 
         # Populate teams
         team1 = Team()
         team2 = Team()
         gamestate.add_teams(team1, team2)
 
+        team1.add_operatives(TrooperVeteran())
         team1.add_operatives(TrooperVeteran())
         team2.add_operatives(KommandoBoy())
 

@@ -6,6 +6,12 @@ from tokenize import Special
 from typing import List, Tuple
 import utils.dice
 import utils.distance
+import game.ui
+import game.state
+import pygame
+
+NORMAL_DICE_SYMBOL = "·"
+CRIT_DICE_SYMBOL = "!"
 
 
 class SpecialRule(Enum):
@@ -55,6 +61,14 @@ class Weapon(ABC):
             return -2
         return 0
 
+    @property
+    def normal_damage(self):
+        return self.damage[0]
+
+    @property
+    def critical_damage(self):
+        return self.damage[1]
+
     def discard_attack_dice(self, roll: utils.dice.Dice, op):
         from operatives import Operative
         attacker: Operative = op
@@ -62,7 +76,7 @@ class Weapon(ABC):
         if SpecialRule.HOT in self.special_rules:
             attacker.deal_mortal_wounds(3)
 
-    def roll_attack_dice(self, attacker, defender):
+    def roll_attack_dice(self, attacker, defender) -> Tuple[List[utils.dice.Dice], List[utils.dice.Dice]]:
         from operatives import Operative
         attacker: Operative = attacker
         defender: Operative = defender
@@ -89,7 +103,7 @@ class Weapon(ABC):
 
         return normal_hits, critical_hits
 
-    def roll_defence_dice(self, attacker, defender):
+    def roll_defence_dice(self, attacker, defender) -> Tuple[List[utils.dice.Dice], List[utils.dice.Dice]]:
         from operatives import Operative
         attacker: Operative = attacker
         defender: Operative = defender
@@ -116,23 +130,148 @@ class Weapon(ABC):
 
         return normal_saves, critical_saves
 
+    def resolve_save_dice(self,
+                          attack_dice: Tuple[List[utils.dice.Dice], List[utils.dice.Dice]],
+                          defence_dice: Tuple[List[utils.dice.Dice], List[utils.dice.Dice]]) -> Tuple[List[utils.dice.Dice], List[utils.dice.Dice]]:
+        text_height = 20
+        element_padding = 5
+
+        # Panel
+        panel_rect = relative_rect = pygame.rect.Rect((0, 0), (400, 250))
+        panel_rect.center = game.ui.layout.window.center
+        panel = game.ui.elements.UIPanel(
+            relative_rect=panel_rect,
+            manager=game.ui.manager,
+            starting_layer_height=0,
+            container=game.ui.layout.window_container,
+            margins=game.ui.layout.default_margins,
+        )
+
+        panel_inner_rect = pygame.rect.Rect(
+            0, 0, panel_rect.width - panel.container_margins['left'] - panel.container_margins['right'], panel_rect.height - panel.container_margins['top'] - panel.container_margins['bottom'])
+        # Top label
+        label = game.ui.elements.UILabel(
+            relative_rect=pygame.rect.Rect(
+                0, 0, panel_rect.width, text_height),
+            text="Resolve Successful Saves",
+            container=panel,
+            manager=game.ui.manager,
+        )
+        # Confirmation button
+        done_button = game.ui.elements.UIButton(
+            relative_rect=pygame.Rect(panel_inner_rect.width / 2, panel_inner_rect.bottom -
+                                      text_height, panel_inner_rect.width / 2, text_height),
+            text="Done",
+            starting_height=1,
+            container=panel,
+            manager=game.ui.manager,
+            visible=True,
+        )
+        # Dice lists
+        defence_label = game.ui.elements.UILabel(
+            relative_rect=pygame.rect.Rect(
+                0, text_height + element_padding, panel_inner_rect.width / 2, text_height),
+            text="Defence Dice",
+            container=panel,
+            manager=game.ui.manager,
+        )
+        attack_label = game.ui.elements.UILabel(
+            relative_rect=pygame.rect.Rect(
+                panel_inner_rect.width / 2, text_height + element_padding, panel_inner_rect.width / 2, text_height),
+            text="Attack Dice",
+            container=panel,
+            manager=game.ui.manager,
+        )
+        list_height = panel_inner_rect.height - 3 * text_height - 3 * element_padding
+        defence_dice_selection = game.ui.elements.UISelectionList(
+            relative_rect=pygame.Rect(
+                0, 2 * text_height + 2 * element_padding, panel_inner_rect.width / 2, list_height),
+            item_list=[f"{CRIT_DICE_SYMBOL} {dice.value}" for dice in defence_dice[1]
+                       ] + [f"{NORMAL_DICE_SYMBOL} {dice.value}" for dice in defence_dice[0]],
+            allow_multi_select=True,
+            container=panel,
+            manager=game.ui.manager)
+        attack_dice_selection = game.ui.elements.UISelectionList(
+            relative_rect=pygame.Rect(panel_inner_rect.width / 2, 2 * text_height +
+                                      2 * element_padding, panel_inner_rect.width / 2, list_height),
+            item_list=[f"{CRIT_DICE_SYMBOL} {dice.value}" for dice in attack_dice[1]
+                       ] + [f"{NORMAL_DICE_SYMBOL} {dice.value}" for dice in attack_dice[0]],
+            allow_multi_select=True,
+            container=panel,
+            manager=game.ui.manager)
+
+        # Wait for user to confirm selection
+        while True:
+            d_selections = defence_dice_selection.get_multi_selection()
+            a_selections = attack_dice_selection.get_multi_selection()
+
+            # Count selections
+            norm_hits = sum(
+                1 for a in a_selections if a.startswith(NORMAL_DICE_SYMBOL))
+            crit_hits = sum(
+                1 for a in a_selections if a.startswith(CRIT_DICE_SYMBOL))
+            norm_saves = sum(
+                1 for d in d_selections if d.startswith(NORMAL_DICE_SYMBOL))
+            crit_saves = sum(
+                1 for d in d_selections if d.startswith(CRIT_DICE_SYMBOL))
+
+            # 1 crit save -> 1 crit hit or 1 norm hit
+            # 1 norm save -> 1 norm hit
+            # 2 norm save -> 1 crit hit
+            if (crit_saves == 1 and (crit_hits == 1 or norm_hits == 1)) or \
+                    (norm_saves == 1 and norm_hits == 1) or \
+                    (norm_saves == 2 and crit_hits == 1):
+                defence_dice_selection._raw_item_list.remove(d_selections[0])
+                if norm_saves == 2:
+                    defence_dice_selection._raw_item_list.remove(
+                        d_selections[1])
+                attack_dice_selection._raw_item_list.remove(a_selections[0])
+
+                defence_dice_selection.set_item_list(
+                    defence_dice_selection._raw_item_list)
+                attack_dice_selection.set_item_list(
+                    attack_dice_selection._raw_item_list)
+
+            # Selection complete, return
+            if done_button.check_pressed():
+                remaining_norm_hits = sum(1 for a in attack_dice_selection._raw_item_list if a.startswith(
+                    NORMAL_DICE_SYMBOL))
+                remaining_crit_hits = sum(
+                    1 for a in attack_dice_selection._raw_item_list if a.startswith(CRIT_DICE_SYMBOL))
+
+                game.ui.remove(panel)
+                game.state.redraw()
+                return remaining_norm_hits, remaining_crit_hits
+
+            game.state.redraw()
+
     def shoot(self, attacker, defender):
+        from operatives import Operative
+        attacker: Operative = attacker
+        defender: Operative = defender
+
         # Roll attack dice
-        normal_hits, critical_hits = self.roll_attack_dice(
+        attack_dice = self.roll_attack_dice(
             attacker=attacker,
             defender=defender,
         )
 
         # Roll defence dice
-        normal_saves, critical_saves = self.roll_defence_dice(
+        defence_dice = self.roll_defence_dice(
             attacker=attacker,
             defender=defender,
         )
 
         # Resolve successful saves
+        remaining_normal_hits, remaining_crit_hits = self.resolve_save_dice(attack_dice=attack_dice,
+                                                                            defence_dice=defence_dice)
 
         # Resolve successful hits
+        defender.deal_damage(remaining_normal_hits * self.normal_damage +
+                             remaining_crit_hits * self.critical_damage)
 
         # Remove incapacitated operatives
+        attacker.remove_incapacitated()
+        defender.remove_incapacitated()
 
         return True

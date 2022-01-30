@@ -125,6 +125,13 @@ class Operative(pygame.sprite.Sprite, ABC):
     def incapacitated(self):
         return self.wounds <= 0
 
+    def remove_incapacitated(self):
+        """Check if an operative is incapacitated and remove it if so.
+        """
+        if self.incapacitated:
+            # TODO: Call on_death hooks
+            self.team.operatives.remove(self)
+
     @property
     def order(self):
         return self._order
