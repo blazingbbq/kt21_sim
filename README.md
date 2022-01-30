@@ -26,7 +26,7 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
     - [x] Utility for determining valid movement destinations
         - [ ] Include support for difficult terrain traversal
     - [ ] Utilites for determining valid targets
-        - [ ] shoot
+        - [x] shoot
             - [ ] Include support for cover / obscuring
         - [x] charge
         - [ ] fight

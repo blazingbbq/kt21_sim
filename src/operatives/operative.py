@@ -385,7 +385,8 @@ class Operative(pygame.sprite.Sprite, ABC):
             for operative in team.operatives:
                 # Check weapon's range, if it has one
                 weapon_range = weapon.range
-                if weapon_range and utils.distance.between(self, operative) > weapon_range:
+                if weapon_range and utils.distance.between(self.rect.center, operative.rect.center) > \
+                        weapon_range + self.datacard.physical_profile.base / 2 + operative.datacard.physical_profile.base / 2:
                     continue
 
                 # Enemy is valid target if it is within Line of Sight
