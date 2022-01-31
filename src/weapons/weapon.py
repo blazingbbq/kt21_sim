@@ -400,7 +400,7 @@ class Weapon(ABC):
                 # No dice left for resolver, skip
                 continue
 
-            resolver_dice_list.enable()
+            resolver_dice_list.disable()
             other_dice_list.disable()
             parry_button.disable()
             strike_button.disable()
@@ -408,6 +408,7 @@ class Weapon(ABC):
             # To resolve a successful hit, they select one of their retained attack dice,
             # choose for their operative to strike or parry, then discard that attack dice.
             while True:
+                resolver_dice_list.enable()
                 dice_selection = resolver_dice_list.get_single_selection()
                 # Enable resolution buttons once a selection is made
                 if dice_selection != None:
@@ -424,11 +425,12 @@ class Weapon(ABC):
                 game.state.redraw()
 
             resolver_dice_list.disable()
-            other_dice_list.enable()
 
             critical_hit = dice_selection.startswith(CRIT_DICE_SYMBOL)
             # If they parry, one of their opponent’s successful hits is discarded
             while not striking:
+                other_dice_list.enable()
+
                 # Ensure that parry is possible
                 if len(other_dice_list._raw_item_list) <= 0:
                     # Nothing to parry
@@ -456,11 +458,10 @@ class Weapon(ABC):
                         break
 
                 game.state.redraw()
+            other_dice_list.disable()
 
             # If they strike, inflict damage on the target.
             if striking:
-                other_dice_list.disable()
-
                 if critical_hit:
                     # If the attack dice they select is a critical hit, inflict damage equal to their selected weapon’s Critical Damage.
                     receiver.deal_damage(resolving_weapon.critical_damage)
@@ -468,6 +469,8 @@ class Weapon(ABC):
                     # If the attack dice they select is a normal hit, inflict damage equal to their selected weapon’s Normal Damage.
                     receiver.deal_damage(resolving_weapon.normal_damage)
 
+            # NOTE: Must enable list before updating its contents, otherwise it will fail to disable next time
+            resolver_dice_list.enable()
             # Discard attack dice
             resolver_dice_list._raw_item_list.remove(dice_selection)
             resolver_dice_list.set_item_list(resolver_dice_list._raw_item_list)
