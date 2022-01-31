@@ -1,3 +1,4 @@
+from board.killzones import *
 from state.gamestate import *
 from state.team import *
 from operatives import *
@@ -24,6 +25,9 @@ class KT21Sim:
         team1.add_operatives(TrooperVeteran())
         team1.add_operatives(TrooperVeteran())
         team2.add_operatives(KommandoBoy())
+
+        # Setup killzone
+        DefaultKillzone(gamestate.gameboard)
 
         # Run through game phases
         gamestate.redraw()
