@@ -18,9 +18,9 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
 
 ## Core Rules
 
-- [ ] Tools of War
+- [x] Tools of War
     - [x] Operatives
-    - [ ] Kill Teams
+    - [x] Kill Teams
     - [x] Distances
     - [x] Killzones
     - [x] Dice

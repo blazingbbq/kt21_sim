@@ -59,6 +59,29 @@ class Layout:
                                                              anchors=self.top_right_anchors
                                                              )
 
+        left_panel_inner_rect = pygame.Rect(
+            0, 0, self.left_panel.rect.width - self.default_margins['left'] - self.default_margins['right'], self.left_panel.rect.height - self.default_margins['top'] - self.default_margins['bottom'])
+        right_panel_inner_rect = pygame.Rect(
+            0, 0, self.right_panel.rect.width - self.default_margins['left'] - self.default_margins['right'], self.right_panel.rect.height - self.default_margins['top'] - self.default_margins['bottom'])
+
+        # Info card panel
+        info_panel_rect = pygame.Rect(
+            0, left_panel_inner_rect.height * 2 / 3, left_panel_inner_rect.width, left_panel_inner_rect.height / 3)
+        self.info_panel: pygame_gui.elements.UIPanel = pygame_gui.elements.UIPanel(relative_rect=info_panel_rect,
+                                                                                   starting_layer_height=1,
+                                                                                   container=self.left_panel,
+                                                                                   manager=game.ui.manager,
+                                                                                   )
+
+        # Console text box
+        console_rect = pygame.Rect(
+            0, right_panel_inner_rect.height * 2 / 3, right_panel_inner_rect.width, right_panel_inner_rect.height / 3)
+        self.console: pygame_gui.elements.UITextBox = game.ui.elements.UITextBox(html_text=f"",
+                                                                                 relative_rect=console_rect,
+                                                                                 container=self.right_panel,
+                                                                                 manager=game.ui.manager,
+                                                                                 )
+
     @property
     def side_panel_width(self):
         gameboard_width = utils.distance.from_inch(

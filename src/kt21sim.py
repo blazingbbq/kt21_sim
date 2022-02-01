@@ -4,6 +4,7 @@ from state.team import *
 from operatives import *
 import game.screen
 import game.state
+from game.console import keyname, print, bold, italic, with_background, with_color
 
 DEBUG = True
 
@@ -11,8 +12,9 @@ DEBUG = True
 class KT21Sim:
     def start():
         # Init display and UI
-        game.screen.init("KT21 Sim")
+        game.screen.init("KT21SIM")
         game.ui.init()
+        game.console.preload_fonts()
 
         # Init gamestate
         gamestate: GameState = game.state.init()
@@ -33,10 +35,18 @@ class KT21Sim:
         # Setup killzone
         DefaultKillzone(gamestate.gameboard)
 
+        # Welcome messages
+        escape_text = keyname("ESCAPE")
+        return_text = keyname("RETURN")
+        note_text = with_background("NOTE:", "#0077bb")
+        print(bold("Welcome to KT21SIM"))
+        print(bold(note_text) + italic(
+            f" For any action, press {escape_text} to cancel the action, and {return_text} to end the action early."))
+
         # Run through game phases
         gamestate.redraw()
         gamestate.run()
-        print("--- Sim complete ---")
+        print(bold(with_color("*** Sim complete ***", color="#00ff00")))
 
         # Spin once game is over
         # TODO: Do something once game is over
