@@ -116,7 +116,7 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
     - [x] List of Weapons
     - [ ] List of Tags this unit qualifies, helps when determining validity of target selection
     - [ ] Callbacks for character state changes:
-        - [ ] `after_activation` or `on_activation_end`
+        - [x] `after_activation` or `on_activation_end`
     - [x] Handle "injured" state
     - [x] Manage engage/conceal order
 - [ ] Strategic Ploy object

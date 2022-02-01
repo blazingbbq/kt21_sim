@@ -38,7 +38,7 @@ class KT21Sim:
         # Welcome messages
         escape_text = keyname("ESCAPE")
         return_text = keyname("RETURN")
-        note_text = with_background("NOTE:", "#0077bb")
+        note_text = with_background("NOTE:", 0x0077bb)
         print(bold("Welcome to KT21SIM"))
         print(bold(note_text) + italic(
             f" For any action, press {escape_text} to cancel the action, and {return_text} to end the action early."))
@@ -46,7 +46,7 @@ class KT21Sim:
         # Run through game phases
         gamestate.redraw()
         gamestate.run()
-        print(bold(with_color("*** Sim complete ***", color="#00ff00")))
+        print(bold(with_color("*** Sim complete ***", color=0x00ff00)))
 
         # Spin once game is over
         # TODO: Do something once game is over

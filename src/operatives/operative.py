@@ -9,6 +9,7 @@ import utils.player_input
 import utils.distance
 import utils.collision
 import utils.line_of_sight
+from game.console import bold, print, with_color
 
 ENGAGEMENT_RANGE_COLOR = 0x242726
 ENGAGEMENT_RANGE_OUTLINE_WIDTH = 1
@@ -20,6 +21,8 @@ VALID_MOVE_RULER_COLOR = 0xffffff
 INVALID_MOVE_RULER_COLOR = 0xff0000
 
 VALID_TARGET_HIGHLIGHT_COLOR = 0x00ff00
+
+OPERATIVE_NAME_CONSOLE_COLOR = 0xc54c21
 
 
 class Order(Enum):
@@ -35,6 +38,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         from state.team import Team
         # Team is set by the team when this operative is added to that team
         self.team: Team = None
+        self.console_name_color = OPERATIVE_NAME_CONSOLE_COLOR
 
         # Game object init
         self.datacard = datacard
@@ -127,6 +131,7 @@ class Operative(pygame.sprite.Sprite, ABC):
 
     def deal_damage(self, num: int):
         self.wounds -= num
+        self.print(f"Suffered {num} wounds")
 
     def deal_mortal_wounds(self, num: int):
         self.deal_damage(num)
@@ -145,6 +150,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         if self.incapacitated:
             # TODO: Call on_death hooks
             self.team.operatives.remove(self)
+            self.print(bold(with_color("Incapacited", 0xff0000)))
 
     @property
     def order(self):
@@ -158,6 +164,13 @@ class Operative(pygame.sprite.Sprite, ABC):
     # Sets the position of the operative. Not to be confused with perform_move, the action callback.
     def move_to(self, center: Tuple[float, float]):
         self.rect.center = center
+
+    @property
+    def console_name(self):
+        return bold(with_color("[" + self.datacard.operative_type.upper() + "]", color=self.console_name_color))
+
+    def print(self, str: str):
+        print(self.console_name + " " + str)
 
     def redraw(self):
         if not self.visible:
@@ -322,6 +335,8 @@ class Operative(pygame.sprite.Sprite, ABC):
                      distance: utils.distance.Distance,
                      falling_back: bool = False,
                      charging: bool = False):
+        self.print("Moving up to " + distance.to_console_format())
+
         # Save current position in case we want to cancel move
         starting_pos = self.rect.center
         successful_move = True
@@ -476,6 +491,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         # If no target was selected, cancel shooting action
         if defender == None:
             return False
+        self.print("Shooting " + defender.console_name)
 
         # Perform shoot action
         successful_shooting = selected_weapon.shoot(
@@ -529,6 +545,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         # If no target was selected, cancel fighting action
         if defender == None:
             return False
+        self.print("Fighting " + defender.console_name)
 
         # Select melee weapons (both players)
         if len(self.datacard.melee_weapon_profiles) <= 0:

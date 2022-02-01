@@ -89,6 +89,9 @@ class Distance:
     def to_screen_size(self):
         return self.distance * self.inch_size
 
+    def to_console_format(self) -> str:
+        return str(int(self.distance)) + "\""
+
     def round_up(self, increment):
         if increment == None:
             increment = TRIANGLE
