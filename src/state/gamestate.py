@@ -40,6 +40,10 @@ class GameState:
     def redraw(self):
         """Redraw the gamestate. Also pumps game events
         """
+        # Update debounced key statuses
+        # NOTE: Update this before ticking the clock, otherwise the input window is too small
+        utils.player_input.update_key_statuses()
+
         # Tick clock to prevent spinning too fast
         game.clock.tick(60)
 

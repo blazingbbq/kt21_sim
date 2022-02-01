@@ -1,7 +1,27 @@
-from typing import Any, Callable, List, Tuple, Union
+from typing import List, Tuple, Union
 import functools
 import pygame
 import game.ui
+
+
+class _KeyState:
+    last: List[bool] = []
+
+
+def update_key_statuses():
+    _KeyState.last = pygame.key.get_pressed()
+
+
+def key_pressed(key_code: int) -> bool:
+    """Check that a key was pressed. Only full key presses count (i.e. key down -> key up).
+
+    Args:
+        key_code (int): The pygame key code corresponding to the key to check.
+
+    Returns:
+        bool: Returns whether the key was pressed.
+    """
+    return _KeyState.last[key_code] == True and pygame.key.get_pressed()[key_code] == False
 
 
 def mouse_pos():

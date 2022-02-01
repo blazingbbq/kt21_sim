@@ -179,7 +179,7 @@ class Operative(pygame.sprite.Sprite, ABC):
             pygame.draw.circle(screen, WEAPON_RANGE_COLOR, self.rect.center, self.range_radius.to_screen_size(
             ) + self.datacard.physical_profile.base.to_screen_size() / 2, WEAPON_RANGE_OUTLINE_WIDTH)
 
-        # TODO: Display icon idicating current order
+        # TODO: Display icon indicating current order
         # TODO: Injured icon
 
         self.render_group.draw(screen)
@@ -334,6 +334,15 @@ class Operative(pygame.sprite.Sprite, ABC):
         while remaining_movement > 0:
             # TODO: Listen for ESCAPE and RETURN to cancel/confirm action
             for click_loc in utils.player_input.wait_for_click():
+                # Listen for ESCAPE and RETURN keys
+                if utils.player_input.key_pressed(pygame.K_ESCAPE):
+                    remaining_movement = -1
+                    successful_move = False
+                    break
+                if utils.player_input.key_pressed(pygame.K_RETURN):
+                    remaining_movement = -1
+                    break
+
                 move_is_valid = self.valid_move_location(
                     self.ruler.destination, falling_back, charging)
                 # If we receive a click, check that the location is valid for movement
@@ -348,6 +357,9 @@ class Operative(pygame.sprite.Sprite, ABC):
                 )
                 self.ghost_pos = self.ruler.destination  # Show ghost at target dest
                 self.team.gamestate.redraw()
+
+            if remaining_movement < 0:
+                break
 
             # Move operative to end of the ruler's measured distance
             self.move_to(self.ruler.destination)
@@ -446,6 +458,11 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.display_range(selected_weapon.range)
         [op.highlight(VALID_TARGET_HIGHLIGHT_COLOR) for op in valid_targets]
         for click_loc in utils.player_input.wait_for_click():
+            # Cancel action with ESCAPE
+            if utils.player_input.key_pressed(pygame.K_ESCAPE):
+                defender = None
+                break
+
             if click_loc != None:
                 defender = utils.collision.get_selected_sprite(
                     click_loc, valid_targets)
@@ -455,6 +472,10 @@ class Operative(pygame.sprite.Sprite, ABC):
         [op.unhighlight() for op in valid_targets]
         self.hide_range()
         self.team.gamestate.redraw()
+
+        # If no target was selected, cancel shooting action
+        if defender == None:
+            return False
 
         # Perform shoot action
         successful_shooting = selected_weapon.shoot(
@@ -490,6 +511,11 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.show_engagement_range()
         [op.highlight(VALID_TARGET_HIGHLIGHT_COLOR) for op in valid_targets]
         for click_loc in utils.player_input.wait_for_click():
+            # Cancel action with ESCAPE
+            if utils.player_input.key_pressed(pygame.K_ESCAPE):
+                defender = None
+                break
+
             if click_loc != None:
                 defender = utils.collision.get_selected_sprite(
                     click_loc, valid_targets)
@@ -499,6 +525,10 @@ class Operative(pygame.sprite.Sprite, ABC):
         [op.unhighlight() for op in valid_targets]
         self.hide_engagement_range()
         self.team.gamestate.redraw()
+
+        # If no target was selected, cancel fighting action
+        if defender == None:
+            return False
 
         # Select melee weapons (both players)
         if len(self.datacard.melee_weapon_profiles) <= 0:
