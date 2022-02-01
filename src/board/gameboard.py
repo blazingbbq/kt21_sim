@@ -1,4 +1,6 @@
 import pygame
+
+from board.terrain.traits import TerrainTrait
 from .terrain import *
 import utils.distance
 import utils.player_input
@@ -54,6 +56,14 @@ class GameBoard:
     def add_terrain(self, *terrain: Terrain):
         for t in terrain:
             self.terrain.append(t)
+
+    def features_with_trait(self, trait: TerrainTrait) -> List[Feature]:
+        ret: List[Feature] = []
+        for t in self.terrain:
+            for feature in t.features:
+                if trait in feature.traits:
+                    ret.append(feature)
+        return ret
 
     def redraw(self):
         screen = pygame.display.get_surface()

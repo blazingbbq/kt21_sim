@@ -1,7 +1,7 @@
 from typing import Tuple
 from board.terrain.features.feature import Feature
 from board.terrain.terrain import Terrain
-from board.terrain.traits import TerrainTraits
+from board.terrain.traits import TerrainTrait
 import pygame
 import utils.distance
 
@@ -18,7 +18,8 @@ class Wall(Terrain):
                     utils.distance.from_inch(8).to_screen_size(),
                     utils.distance.from_inch(0.5).to_screen_size(),
                 ),
-                traits=[TerrainTraits.HEAVY],
+                traits=[TerrainTrait.HEAVY,
+                        TerrainTrait.TALL],
             ),
             Feature(
                 parent=self,
@@ -28,6 +29,8 @@ class Wall(Terrain):
                     utils.distance.from_inch(0.5).to_screen_size(),
                     utils.distance.from_inch(2).to_screen_size(),
                 ),
-                traits=[TerrainTraits.HEAVY, TerrainTraits.SCALABLE],
+                traits=[TerrainTrait.HEAVY,
+                        TerrainTrait.TALL,
+                        TerrainTrait.SCALABLE],
             ),
         )

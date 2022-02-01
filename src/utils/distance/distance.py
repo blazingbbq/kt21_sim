@@ -64,12 +64,24 @@ class Distance:
         return Distance(self.distance // other)
 
     def __lt__(self, other):
-        return other > self
+        if isinstance(other, Distance):
+            return self.distance < other.distance
+        return self.distance < other
+
+    def __le__(self, other):
+        if isinstance(other, Distance):
+            return self.distance <= other.distance
+        return self.distance <= other
 
     def __gt__(self, other):
         if isinstance(other, Distance):
             return self.distance > other.distance
         return self.distance > other
+
+    def __ge__(self, other):
+        if isinstance(other, Distance):
+            return self.distance >= other.distance
+        return self.distance >= other
 
     def __float__(self):
         return float(self.distance)

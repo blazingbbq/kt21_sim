@@ -1,6 +1,6 @@
 from typing import List
 import pygame
-from board.terrain.traits import TerrainTraits
+from board.terrain.traits import TerrainTrait
 
 LIGHT_TERRAIN_COLOR = 0x354c29
 HEAVY_TERRAIN_COLOR = 0x323848
@@ -17,17 +17,25 @@ class Feature(pygame.sprite.Sprite):
     def __init__(self,
                  parent,
                  relative_rect: pygame.rect.Rect,
-                 traits: List[TerrainTraits]):
+                 traits: List[TerrainTrait]):
+        # Sprite init
+        pygame.sprite.Sprite.__init__(self)
+
         from board.terrain import Terrain
         self.parent: Terrain = parent
-
         self.relative_rect = relative_rect
-        self.traits = traits
 
         self.border_radius = TERRAIN_BORDER_RADIUS
         self.outline_visible = False
 
-    def get_rect(self):
+        self.traits = traits
+        if self.provides_cover:
+            self.traits.append(TerrainTrait.COVER)
+        if self.obscuring:
+            self.traits.append(TerrainTrait.OBSCURING)
+
+    @property
+    def rect(self):
         return pygame.rect.Rect(
             self.parent.center[0] + self.relative_rect.left,
             self.parent.center[1] + self.relative_rect.top,
@@ -45,9 +53,10 @@ class Feature(pygame.sprite.Sprite):
         pygame.draw.rect(
             surface=pygame.display.get_surface(),
             color=self.color,
-            rect=self.get_rect(),
+            rect=self.rect,
             border_radius=self.border_radius,
         )
+        # TODO: Add icon for tall terrain
 
         # Draw terrain outlines
         if self.outline_visible:
@@ -76,20 +85,32 @@ class Feature(pygame.sprite.Sprite):
 
     @property
     def heavy(self):
-        return TerrainTraits.HEAVY in self.traits
+        return TerrainTrait.HEAVY in self.traits
 
     @property
     def light(self):
-        return TerrainTraits.LIGHT in self.traits
+        return TerrainTrait.LIGHT in self.traits
 
     @property
     def traversable(self):
-        return TerrainTraits.TRAVERSABLE in self.traits
+        return TerrainTrait.TRAVERSABLE in self.traits
 
     @property
     def scalable(self):
-        return TerrainTraits.SCALABLE in self.traits
+        return TerrainTrait.SCALABLE in self.traits
 
     @property
     def vantage_point(self):
-        return TerrainTraits.VANTAGE_POINT in self.traits
+        return TerrainTrait.VANTAGE_POINT in self.traits
+
+    @property
+    def provides_cover(self):
+        return self.light or self.heavy
+
+    @property
+    def obscuring(self):
+        return self.heavy
+
+    @property
+    def tall(self):
+        return TerrainTrait.TALL in self.traits

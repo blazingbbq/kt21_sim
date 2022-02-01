@@ -22,7 +22,7 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
     - [x] Operatives
     - [ ] Kill Teams
     - [x] Distances
-    - [ ] Killzones
+    - [x] Killzones
     - [x] Dice
 - [x] Datacards
     - [x] Engagement Range
@@ -52,19 +52,19 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
         - [x] Fight
 - [x] Wounds and Damage
 - [ ] Controlling Objective Markers and Tokens
-- [ ] Line of Sight
-    - [ ] Visible
-    - [ ] Obscured
-    - [ ] Cover
+- [x] Line of Sight
+    - [x] Visible
+    - [x] Obscured
+    - [x] Cover
 - [ ] Killzones
-    - [ ] Terrain Traits
-        - [ ] Heavy
-        - [ ] Light
-        - [ ] Traversable
-        - [ ] Insignificant
-        - [ ] Scalable
+    - [x] Terrain Traits
+        - [x] Heavy
+        - [x] Light
+        - [x] Traversable
+        - [x] Insignificant
+        - [x] Scalable
         - [ ] Barricades
-        - [ ] Vantage Point
+        - [x] Vantage Point
     - [ ] Moving Through Terrain
         - [ ] Traverse
         - [ ] Jump
@@ -89,7 +89,7 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
         - [ ] Include support for difficult terrain traversal
     - [x] Utilites for determining valid targets
         - [x] shoot
-            - [ ] Include support for cover / obscuring
+            - [x] Include support for cover / obscuring
         - [x] charge
         - [x] fight
     - [x] Utility for rolling dice
@@ -128,10 +128,10 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
 - [ ] Mission objective objects
     - [ ] Add special interact Action to units within range
 - [ ] Terrain
-    - [ ] Add different height levels
+    - [x] Add different height levels
     - [ ] Vantage points
     - [ ] Climbing / dropping
-    - [ ] Heavy + Light terrain types
+    - [x] Heavy + Light terrain types
     - [ ] Add legend to game UI showing colors for terrain types
 - [ ] Add team builder
 - [ ] Add narrative play mode

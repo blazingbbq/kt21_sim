@@ -6,6 +6,9 @@ class Dice:
         self.value = random.randint(1, 6)
         self.rerolled = False
 
+    def can_reroll(self):
+        return not self.rerolled
+
     def reroll(self):
         if self.rerolled == True:
             return

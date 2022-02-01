@@ -22,9 +22,13 @@ class KT21Sim:
         team2 = Team()
         gamestate.add_teams(team1, team2)
 
-        team1.add_operatives(TrooperVeteran())
-        team1.add_operatives(TrooperVeteran())
-        team2.add_operatives(KommandoBoy())
+        team1.add_operatives(
+            TrooperVeteran(),
+            TrooperVeteran(),
+        )
+        team2.add_operatives(
+            KommandoBoy(),
+        )
 
         # Setup killzone
         DefaultKillzone(gamestate.gameboard)

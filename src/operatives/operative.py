@@ -8,6 +8,7 @@ from utils.distance.ruler import Ruler
 import utils.player_input
 import utils.distance
 import utils.collision
+import utils.line_of_sight
 
 ENGAGEMENT_RANGE_COLOR = 0x242726
 ENGAGEMENT_RANGE_OUTLINE_WIDTH = 1
@@ -175,8 +176,8 @@ class Operative(pygame.sprite.Sprite, ABC):
                                2 + utils.distance.ENGAGEMENT_RANGE.to_screen_size(), ENGAGEMENT_RANGE_OUTLINE_WIDTH)
 
         if self.range_radius:
-            pygame.draw.circle(screen, WEAPON_RANGE_COLOR, self.rect.center,
-                               self.range_radius.to_screen_size(), WEAPON_RANGE_OUTLINE_WIDTH)
+            pygame.draw.circle(screen, WEAPON_RANGE_COLOR, self.rect.center, self.range_radius.to_screen_size(
+            ) + self.datacard.physical_profile.base.to_screen_size() / 2, WEAPON_RANGE_OUTLINE_WIDTH)
 
         # TODO: Display icon idicating current order
         # TODO: Injured icon
@@ -390,7 +391,19 @@ class Operative(pygame.sprite.Sprite, ABC):
         from operatives import Operative
         enemy: Operative = op
 
-        # TODO: Determine if target is within line of sight using terrain
+        # An operative is in Line of Sight if it is:
+
+        # 1. Visible
+        if not utils.line_of_sight.visible(source=self, target=enemy):
+            return False
+
+        # 2. Not Obscured
+        if utils.line_of_sight.obscured(source=self, target=enemy):
+            return False
+
+        # 3. Not in Cover (if it is concealed)
+        if enemy.order == Order.CONCEAL and utils.line_of_sight.in_cover(source=self, target=enemy):
+            return False
 
         return True
 
