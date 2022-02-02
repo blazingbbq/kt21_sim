@@ -10,7 +10,8 @@ Use the `--dependencies` flag to install required dependencies, then run using:
 
 ## Gameplay Notes
 
-Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm actions (and end them early)
+Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm actions (and end them early).
+Can also use `RETURN` while resolving attack dices in fights to automatically strike with the highest dice rolled.
 
 ## Core Rules
 

@@ -422,6 +422,13 @@ class Weapon(ABC):
                     striking = False
                     parry_button.disable()
                     break
+
+                # Can use RETURN to automatically use the highest dice as a strike
+                if utils.player_input.key_pressed(pygame.K_RETURN):
+                    dice_selection = resolver_dice_list._raw_item_list[0]
+                    striking = True
+                    break
+
                 game.state.redraw()
 
             resolver_dice_list.disable()
@@ -474,6 +481,9 @@ class Weapon(ABC):
             # Discard attack dice
             resolver_dice_list._raw_item_list.remove(dice_selection)
             resolver_dice_list.set_item_list(resolver_dice_list._raw_item_list)
+
+            # Redraw (and clock game state)
+            game.state.redraw()
 
         # Cleanup UI panel
         game.ui.remove(panel)
