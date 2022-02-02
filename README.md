@@ -1,15 +1,11 @@
 # kt21_sim
 
-## Dependencies
-
-```sh
-pip install pygame pygame_gui -U
-```
-
 ## Running
 
+Use the `--dependencies` flag to install required dependencies, then run using:
+
 ```sh
-./run
+./kt21sim
 ```
 
 ## Gameplay Notes

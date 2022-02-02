@@ -1,0 +1,42 @@
+#!/bin/bash
+
+PACKAGE_NAME="kt21sim"
+
+run_pygame() {
+    python3 src/main.py
+}
+
+install_dependencies() {
+    pip install pygame pygame_gui -U
+}
+
+while test $# -gt 0; do
+    case "$1" in
+        -h|--help)
+            echo "$PACKAGE_NAME - Kill Team 21 Simulator"
+            echo " "
+            echo "usage: $PACKAGE_NAME [options]"
+            echo " "
+            echo "options:"
+            echo "-h, --help                show brief help"
+            echo "-d, --dependencies        install required dependencies"
+            exit 0
+            ;;
+        -d|--dependencies)
+            shift
+            install_dependencies
+            exit 0
+            ;;
+        -r|--run)
+            shift
+            run_pygame
+            exit 0
+            ;;
+        *)
+            echo "Unknown option"
+            exit 1
+            ;;
+    esac
+done
+
+run_pygame
