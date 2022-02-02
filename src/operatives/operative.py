@@ -2,6 +2,8 @@ from typing import Callable, List, Tuple, Union
 from enum import Enum
 import pygame
 from abc import ABC
+
+from board.terrain.traits import TerrainTrait
 from .datacard import *
 from action import Action
 from utils.distance.ruler import Ruler
@@ -24,6 +26,8 @@ VALID_TARGET_HIGHLIGHT_COLOR = 0x00ff00
 
 OPERATIVE_NAME_CONSOLE_COLOR = 0xc54c21
 
+TRAVERSAL_COST = utils.distance.CIRCLE
+
 
 class Order(Enum):
     ENGAGE = 1
@@ -43,7 +47,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         # Game object init
         self.datacard = datacard
         self.render_group = pygame.sprite.RenderPlain()
-        self.ruler = Ruler()
+        self.ruler: Ruler = Ruler()
 
         self.ghost_pos: Union[Tuple[int, int], None] = None
         self.range_radius: Union[utils.distance.Distance, None] = None
@@ -288,6 +292,19 @@ class Operative(pygame.sprite.Sprite, ABC):
 
     # Move Action
 
+    def traversal_cost_to(self,
+                          location: Tuple[int, int]):
+        cost = utils.distance.Distance(0)
+        if self.datacard.physical_profile.flying:
+            # Flying units can ignore vertical distances, meaning they do not need to traverse terrain
+            return cost
+
+        for feature in self.team.gamestate.gameboard.features_with_trait(TerrainTrait.LIGHT) + self.team.gamestate.gameboard.features_with_trait(TerrainTrait.HEAVY):
+            if feature.rect.clipline(self.rect.center, location):
+                cost += TRAVERSAL_COST if feature.traversable else utils.distance.INFINITE
+
+        return cost
+
     def valid_move_location(self,
                             location: Tuple[int, int],
                             falling_back: bool = False,
@@ -325,9 +342,13 @@ class Operative(pygame.sprite.Sprite, ABC):
                     elif distance < self.datacard.physical_profile.base / 2 + operative.datacard.physical_profile.base / 2 + utils.distance.ENGAGEMENT_RANGE:
                         return False
 
-        # TODO: Cannot move through terrain, must traverse or climb over
-        #   - check for intersection with terrain, if it does, request cost_for_traversal() from it
-        #   - Must jump or drop across gaps / ledges (see terrain)
+        # TODO: Ignore this rule if we're ontop of a vantage point (only check features that are TALL)
+        # Cannot end move on top of terrain
+        for feature in self.team.gamestate.gameboard.features_with_trait(TerrainTrait.LIGHT) + self.team.gamestate.gameboard.features_with_trait(TerrainTrait.HEAVY):
+            if utils.collision.circle_rect_collide(circle=self.ruler.destination,
+                                                   radius=self.datacard.physical_profile.base / 2,
+                                                   rect=feature.rect):
+                return False
 
         return True
 
@@ -347,7 +368,6 @@ class Operative(pygame.sprite.Sprite, ABC):
         # Create a new Distance object to prevent us from accidentally changing the reference we're given
         remaining_movement = utils.distance.Distance(distance)
         while remaining_movement > 0:
-            # TODO: Listen for ESCAPE and RETURN to cancel/confirm action
             for click_loc in utils.player_input.wait_for_click():
                 # Listen for ESCAPE and RETURN keys
                 if utils.player_input.key_pressed(pygame.K_ESCAPE):
@@ -358,18 +378,30 @@ class Operative(pygame.sprite.Sprite, ABC):
                     remaining_movement = -1
                     break
 
-                move_is_valid = self.valid_move_location(
+                mouse_pos = utils.player_input.mouse_pos()
+                self.ruler.measure(
+                    from_=self.rect.center,
+                    towards=mouse_pos,
+                    max_length=remaining_movement,
+                )
+
+                # Update the length of the ruler to factor in cost of traversals
+                traversal_cost = self.traversal_cost_to(self.ruler.destination)
+                can_traverse = traversal_cost <= remaining_movement
+                self.ruler.measure_and_show(
+                    from_=self.rect.center,
+                    towards=mouse_pos,
+                    max_length=remaining_movement -
+                    traversal_cost if can_traverse else remaining_movement,
+                )
+
+                move_is_valid = can_traverse and self.valid_move_location(
                     self.ruler.destination, falling_back, charging)
                 # If we receive a click, check that the location is valid for movement
                 if click_loc != None and move_is_valid:
                     break
 
-                self.ruler.measure_and_show(
-                    from_=self.rect.center,
-                    towards=utils.player_input.mouse_pos(),
-                    max_length=remaining_movement,
-                    color=VALID_MOVE_RULER_COLOR if move_is_valid else INVALID_MOVE_RULER_COLOR,
-                )
+                self.ruler.color = VALID_MOVE_RULER_COLOR if move_is_valid else INVALID_MOVE_RULER_COLOR
                 self.ghost_pos = self.ruler.destination  # Show ghost at target dest
                 self.team.gamestate.redraw()
 
@@ -380,7 +412,7 @@ class Operative(pygame.sprite.Sprite, ABC):
             self.move_to(self.ruler.destination)
             self.team.gamestate.redraw()
             remaining_movement -= self.ruler.length.round_up(
-                increment=utils.distance.TRIANGLE)
+                increment=utils.distance.TRIANGLE) + traversal_cost
 
         # Hide engagement ranges of enemy operatives
         self.hide_enemy_engagement_ranges()

@@ -56,7 +56,7 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
     - [x] Visible
     - [x] Obscured
     - [x] Cover
-- [ ] Killzones
+- [x] Killzones
     - [x] Terrain Traits
         - [x] Heavy
         - [x] Light
@@ -66,11 +66,11 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
         - [ ] Barricades
         - [x] Vantage Point
     - [ ] Moving Through Terrain
-        - [ ] Traverse
+        - [x] Traverse
         - [ ] Jump
         - [ ] Climb
         - [ ] Drop
-        - [ ] Flying Over Terrain
+        - [x] Flying Over Terrain
     - [ ] Example Boards
     - [ ] Example Terrain Features
 - [ ] Ways to Play
@@ -86,7 +86,7 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
         - [ ] `on_shoot`, `on_damage`, `on_fight` ?
             - Maybe models check these whenever they perform their own state change callbacks
     - [x] Utility for determining valid movement destinations
-        - [ ] Include support for difficult terrain traversal
+        - [x] Include support for difficult terrain traversal
     - [x] Utilites for determining valid targets
         - [x] shoot
             - [x] Include support for cover / obscuring
@@ -127,7 +127,7 @@ Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm acti
 - [ ] Tags namespace that manages all possible model tags
 - [ ] Mission objective objects
     - [ ] Add special interact Action to units within range
-- [ ] Terrain
+- [x] Terrain
     - [x] Add different height levels
     - [ ] Vantage points
     - [ ] Climbing / dropping

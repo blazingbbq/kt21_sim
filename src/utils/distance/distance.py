@@ -114,6 +114,9 @@ SQUARE: Distance = Distance(3.0)
 PENTAGON: Distance = Distance(6.0)
 ENGAGEMENT_RANGE: Distance = TRIANGLE
 
+ZERO: Distance = Distance(0.0)
+INFINITE: Distance = Distance(9999.0)
+
 MM: Distance = Distance(MM_TO_INCH)
 INCH: Distance = Distance(1.0)
 
