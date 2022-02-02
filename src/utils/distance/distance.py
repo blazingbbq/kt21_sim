@@ -33,7 +33,7 @@ class Distance:
     def __sub__(self, other):
         if isinstance(other, Distance):
             other = other.distance
-        return Distance(self.distance + other)
+        return Distance(self.distance - other)
 
     def __isub__(self, other):
         if isinstance(other, Distance):

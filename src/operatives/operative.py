@@ -222,7 +222,7 @@ class Operative(pygame.sprite.Sprite, ABC):
     @property
     def movement_characteristic(self):
         movement_modifier = utils.distance.CIRCLE if self.injured else 0
-        return self.datacard.physical_profile.movement + movement_modifier
+        return self.datacard.physical_profile.movement - movement_modifier
 
     def activate(self):
         # Select engage/conceal order
