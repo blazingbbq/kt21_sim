@@ -290,6 +290,14 @@ class Operative(pygame.sprite.Sprite, ABC):
 
         return within_engagement_range
 
+    def get_objective_in_capture_range(self):
+        for o in self.team.gamestate.gameboard.objectives:
+            if utils.distance.between(self.rect.center, o.rect.center) < self.datacard.physical_profile.base / 2 + o.capture_range:
+                return o
+
+        # No objectives in range
+        return None
+
     # Move Action
 
     def traversal_cost_to(self,

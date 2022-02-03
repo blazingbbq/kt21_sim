@@ -1,3 +1,4 @@
+from board.objectives.objective import Objective
 from .action import Action
 import action.names
 import action.condition
@@ -73,6 +74,21 @@ def perform_pass(op):
     return True
 
 
+def perform_objective_capture(op):
+    from operatives import Operative
+    operative: Operative = op
+
+    objective: Objective = operative.get_objective_in_capture_range()
+    if objective == None:
+        # No objective in range to capture?
+        import game.console
+        game.console.print_err("Expected objective to be in range")
+        return False
+
+    objective.on_capture(operative)
+    return True
+
+
 universal_actions = [
     Action(name=action.names.NORMAL_MOVE,
            ap_cost=1,
@@ -102,6 +118,10 @@ universal_actions = [
            ap_cost=1,
            on_action=perform_pick_up,
            valid_this_turn=action.condition.can_pick_up()),
+    Action(name=action.names.CAPTURE_OBJECTIVE,
+           ap_cost=1,
+           on_action=perform_objective_capture,
+           valid_this_turn=action.condition.can_capture_objective()),
 ]
 
 pass_action = Action(name=action.names.PASS,

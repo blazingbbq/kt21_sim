@@ -1,6 +1,8 @@
+from board.objectives.objective import Objective
 from typing import Callable, List
 from .action import Action
 import action.names
+import utils.distance
 
 
 def once_per_turn(action, op):
@@ -56,6 +58,32 @@ def able_to_pickup_objective(_, op):
     # Check that operative controls objects
     # Check that operative is not carrying another objective
     return False
+
+
+def controls_objective(_, op):
+    from operatives import Operative
+    capturing_operative: Operative = op
+
+    # Find objective within range
+    objective: Objective = capturing_operative.get_objective_in_capture_range()
+    if objective == None:
+        return False
+
+    friendly_apl = 0
+    enemy_apl = 0
+    for team in capturing_operative.team.gamestate.teams:
+        for check_operative in team.operatives:
+            if utils.distance.between(check_operative.rect.center, objective.rect.center) < check_operative.datacard.physical_profile.base / 2 + objective.capture_range:
+                if team == capturing_operative.team:
+                    friendly_apl += check_operative.datacard.physical_profile.action_point_limit
+                else:
+                    enemy_apl += check_operative.datacard.physical_profile.action_point_limit
+
+    # Friendly operatives control an objective marker or token if the total APL
+    # characteristic of friendly operatives within CIRCLE of the centre of it
+    # is greater than that of enemy operatives.
+    return friendly_apl > enemy_apl
+
 
 # Action bundling
 
@@ -155,6 +183,14 @@ def can_pick_up():
         once_per_turn,
         not_within_engagement_range_of_enemy,
         able_to_pickup_objective,
+    )
+
+
+def can_capture_objective():
+    return all_of(
+        once_per_turn,
+        not_within_engagement_range_of_enemy,
+        controls_objective,
     )
 
 

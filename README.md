@@ -33,7 +33,7 @@ Can also use `RETURN` while resolving attack dices in fights to automatically st
     - [x] Generate Command Points
     - [ ] Play Strategic Ploys
     - [ ] Target Reveal
-- [ ] Firefight Phase
+- [x] Firefight Phase
     - [x] Perform Actions
     - [ ] Overwatch
     - [x] Actions
@@ -45,10 +45,11 @@ Can also use `RETURN` while resolving attack dices in fights to automatically st
         - [x] Pass
         - [ ] Overwatch
         - [ ] Pick Up
+        - [x] Capture Objective
         - [x] Shoot
         - [x] Fight
 - [x] Wounds and Damage
-- [ ] Controlling Objective Markers and Tokens
+- [x] Controlling Objective Markers and Tokens
 - [x] Line of Sight
     - [x] Visible
     - [x] Obscured

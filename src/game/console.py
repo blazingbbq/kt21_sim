@@ -3,6 +3,8 @@ import game.ui
 
 # Theming
 KEYNAME_BACKGROUND_COLOR = "#666666"
+ERROR_MESSAGE_BACKGROUND_COLOR = 0xff0000
+ERROR_MESSAGE_COLOR = 0xff0000
 
 
 def preload_fonts():
@@ -62,6 +64,11 @@ def with_font(str: str,
 def print(str: str,
           end: str = "<br>"):
     game.ui.layout.console.append_html_text(f"{str}{end}")
+
+
+def print_err(str: str):
+    print(bold(with_background("ERROR:", ERROR_MESSAGE_BACKGROUND_COLOR)
+               ) + " " + with_color(str, ERROR_MESSAGE_COLOR))
 
 
 # Misc console printing utils
