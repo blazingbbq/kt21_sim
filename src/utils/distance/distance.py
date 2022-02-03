@@ -15,6 +15,9 @@ class Distance:
             distance = distance.distance
         self.distance = distance
 
+    def __int__(self):
+        return int(self.distance)
+
     def __str__(self):
         return str(self.distance)
 
@@ -105,6 +108,9 @@ class Distance:
 
     def copy(self):
         return Distance(self.distance)
+
+    def to_mm(self):
+        return self.distance / MM_TO_INCH
 
 
 # Distance conversions to inches

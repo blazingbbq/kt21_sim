@@ -11,6 +11,7 @@ import utils.player_input
 import utils.distance
 import utils.collision
 import utils.line_of_sight
+import utils.decorator
 from game.console import bold, print, with_color
 
 ENGAGEMENT_RANGE_COLOR = 0x242726
@@ -176,6 +177,10 @@ class Operative(pygame.sprite.Sprite, ABC):
     def print(self, str: str):
         print(self.console_name + " " + str)
 
+    def show_datacard(self):
+        self.datacard.show()
+
+    @utils.decorator.on_hover(show_datacard)
     def redraw(self):
         if not self.visible:
             return

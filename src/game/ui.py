@@ -16,6 +16,8 @@ class Layout:
                        'top': default_padding,
                        'bottom': default_padding}
 
+    info_panel_flush_offset = (-3, -3)
+
     # Anchors
     top_right_anchors = {'left': 'right',
                          'right': 'right',
@@ -72,6 +74,7 @@ class Layout:
                                                                                    container=self.left_panel,
                                                                                    manager=game.ui.manager,
                                                                                    )
+        self.info_panel_contents: pygame_gui.core.UIElement = None
 
         # Console text box
         console_rect = pygame.Rect(
@@ -111,5 +114,17 @@ def redraw():
     game.ui.manager.draw_ui(game.screen.get_surface())
 
 
-def remove(element: pygame_gui.core.ui_element.UIElement):
+def remove(element: pygame_gui.core.UIElement):
     element.kill()
+
+
+def replace_info_panel(new_element: pygame_gui.core.UIElement):
+    if layout.info_panel_contents and layout.info_panel_contents == new_element:
+        # Nothing to do, contents of info panel already set correctly
+        return
+
+    # Replace contents of info panel
+    if layout.info_panel_contents:
+        layout.info_panel_contents.hide()
+    layout.info_panel_contents = new_element
+    layout.info_panel_contents.show()

@@ -32,6 +32,11 @@ def linebreak():
     return "<br>"
 
 
+# Alias for linebreak
+def newline():
+    return linebreak()
+
+
 def with_background(str: str, bgcolor: Union[str, int]):
     if isinstance(bgcolor, int):
         bgcolor = "#{0:06X}".format(bgcolor)

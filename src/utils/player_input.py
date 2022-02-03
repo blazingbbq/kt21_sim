@@ -2,14 +2,36 @@ from typing import List, Tuple, Union
 import functools
 import pygame
 import game.ui
+import game.clock
+
+MIN_HOVER_TIME_MS = 300  # Minimum time stationary before considering it a hover
 
 
-class _KeyState:
-    last: List[bool] = []
+class _InputState:
+    last_key_states: List[bool] = []
+    last_mouse_pos: Tuple[int, int] = (0, 0)
+    time_hovering = 0
+
+
+def update_input_state():
+    update_key_statuses()
+    update_mouse_status()
 
 
 def update_key_statuses():
-    _KeyState.last = pygame.key.get_pressed()
+    _InputState.last_key_states = pygame.key.get_pressed()
+
+
+def update_mouse_status():
+    new_pos = mouse_pos()
+    if new_pos == _InputState.last_mouse_pos:
+        # Increment hover timer
+        _InputState.time_hovering += game.clock.delta()
+    else:
+        # Otherwise, reset hover timer
+        _InputState.time_hovering = 0
+
+    _InputState.last_mouse_pos = new_pos
 
 
 def key_pressed(key_code: int) -> bool:
@@ -21,7 +43,11 @@ def key_pressed(key_code: int) -> bool:
     Returns:
         bool: Returns whether the key was pressed.
     """
-    return _KeyState.last[key_code] == True and pygame.key.get_pressed()[key_code] == False
+    return _InputState.last_key_states[key_code] == True and pygame.key.get_pressed()[key_code] == False
+
+
+def hovering() -> bool:
+    return _InputState.time_hovering > MIN_HOVER_TIME_MS
 
 
 def mouse_pos():

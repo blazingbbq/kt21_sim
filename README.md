@@ -2,11 +2,13 @@
 
 ## Running
 
-Use the `--dependencies` flag to install required dependencies, then run using:
+Run using:
 
 ```sh
 ./kt21sim
 ```
+
+Use the `--dependencies` flag to install required dependencies.
 
 ## Gameplay Notes
 
@@ -91,7 +93,7 @@ Can also use `RETURN` while resolving attack dices in fights to automatically st
         - [x] charge
         - [x] fight
     - [x] Utility for rolling dice
-    - [ ] Utility for determining which team controls objective based on models within range
+    - [x] Utility for determining which team controls objective based on models within range
     - [ ] Have chain activation queue that can insert other units so that they are activated immediately following another operative's activation.
         - [ ] Or, make this a callback that gets registered in the operative's `on_activation_end` and removes itself from the list after being called
     - [ ] Maintain list of strategic ploys that can be used by each player
