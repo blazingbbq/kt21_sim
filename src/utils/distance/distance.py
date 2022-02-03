@@ -113,6 +113,7 @@ CIRCLE: Distance = Distance(2.0)
 SQUARE: Distance = Distance(3.0)
 PENTAGON: Distance = Distance(6.0)
 ENGAGEMENT_RANGE: Distance = TRIANGLE
+OBJECTIVE_CAPTURE_RANGE: Distance = CIRCLE
 
 ZERO: Distance = Distance(0.0)
 INFINITE: Distance = Distance(9999.0)

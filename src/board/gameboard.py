@@ -1,4 +1,5 @@
 import pygame
+from board.objectives.objective import Objective
 
 from board.terrain.traits import TerrainTrait
 from .terrain import *
@@ -23,6 +24,7 @@ class GameBoard:
 
         # Terrain features
         self.terrain: Terrain = []
+        self.objectives: Objective = []
 
         # Gameboard features
         self.width = utils.distance.from_inch(GAMEBOARD_WIDTH)
@@ -57,6 +59,10 @@ class GameBoard:
         for t in terrain:
             self.terrain.append(t)
 
+    def add_objectives(self, *objectives: Objective):
+        for o in objectives:
+            self.objectives.append(o)
+
     def features_with_trait(self, trait: TerrainTrait) -> List[Feature]:
         ret: List[Feature] = []
         for t in self.terrain:
@@ -65,11 +71,23 @@ class GameBoard:
                     ret.append(feature)
         return ret
 
+    def show_objective_ranges(self):
+        for objective in self.objectives:
+            objective.show_capture_range()
+
+    def hide_objective_ranges(self):
+        for objective in self.objectives:
+            objective.hide_capture_range()
+
     def redraw(self):
         screen = pygame.display.get_surface()
         pygame.draw.rect(screen, self.board_color, self.rect)
         pygame.draw.rect(screen, self.border_color,
                          self.rect, GAMEBOARD_BORDER_WIDTH)
+
+        # Redraw objectives
+        for objective in self.objectives:
+            objective.redraw()
 
         # Redraw terrain
         for terrain in self.terrain:

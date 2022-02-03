@@ -35,6 +35,13 @@ class KT21Sim:
         # Setup killzone
         DefaultKillzone(gamestate.gameboard)
 
+        # TODO: Mission should add objectives to the gameboard instead
+        from board.objectives.objective import Objective
+        gamestate.gameboard.add_objectives(
+            Objective(pos=(gamestate.gameboard.rect.centerx,
+                           gamestate.gameboard.rect.centery + 200)),
+        )
+
         # Welcome messages
         escape_text = keyname("ESCAPE")
         return_text = keyname("RETURN")
