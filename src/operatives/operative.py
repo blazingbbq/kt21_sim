@@ -338,7 +338,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         within_engagement_range = []
         for enemy_team in [team for team in self.team.gamestate.teams if team != self.team]:
             for op in enemy_team.operatives:
-                if utils.distance.between(self.rect.center if point == None else point, op.rect.center) < utils.distance.TRIANGLE + self.datacard.physical_profile.base/2 + op.datacard.physical_profile.base/2:
+                if utils.distance.between(self.rect.center if point == None else point, op.rect.center) < utils.distance.TRIANGLE + self.base_radius + op.base_radius:
                     within_engagement_range.append(op)
 
         return within_engagement_range
@@ -376,7 +376,7 @@ class Operative(pygame.sprite.Sprite, ABC):
             for operative in team.operatives:
                 if operative == self:
                     continue
-                if utils.distance.between(location, operative.rect.center) < self.datacard.physical_profile.base/2 + operative.datacard.physical_profile.base/2:
+                if utils.distance.between(location, operative.rect.center) < self.base_radius + operative.base_radius:
                     return False
 
         # Cannot move over the edge of the killzone
@@ -388,16 +388,16 @@ class Operative(pygame.sprite.Sprite, ABC):
         # FIXME: If charging, cannot move through engagement range of other units unless another friendly operative is currently engaged with it
         if not self.datacard.physical_profile.flying:
             for team in self.team.gamestate.teams:
-                if team == self.team:
-                    continue
+                for operative in team.operatives:
+                    if operative == self:
+                        continue
 
-                enemies_to_check = [op for op in team.operatives]
-                for operative in enemies_to_check:
                     distance = utils.distance.between_line_and_point(
                         self.ruler.source, self.ruler.destination, operative.rect.center)
 
                     # If charging or falling back, only check for overlapping bases
-                    if charging or falling_back:
+                    # Same if the unit is friendly
+                    if charging or falling_back or team == self.team:
                         if distance < self.base_radius + operative.base_radius:
                             return False
                     elif distance < self.base_radius + operative.base_radius + utils.distance.ENGAGEMENT_RANGE:
