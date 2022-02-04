@@ -46,7 +46,7 @@ Can also use `RETURN` while resolving attack dices in fights to automatically st
         - [x] Dash
         - [x] Pass
         - [ ] Overwatch
-        - [ ] Pick Up
+        - [x] Pick Up
         - [x] Capture Objective
         - [x] Shoot
         - [x] Fight
@@ -72,7 +72,7 @@ Can also use `RETURN` while resolving attack dices in fights to automatically st
         - [ ] Drop
         - [x] Flying Over Terrain
     - [ ] Example Boards
-    - [ ] Example Terrain Features
+    - [x] Example Terrain Features
 - [ ] Ways to Play
     - [ ] Open Play
     - [ ] Matched Play
@@ -107,7 +107,7 @@ Can also use `RETURN` while resolving attack dices in fights to automatically st
 - [x] Turnphase objects for each phase in the game. Loop through these until all turns have elapsed
     - [ ] Callback hooks for different phases of the game where armies could have actions to take (e.g. guardsmen orders)
     - [x] Roll initiative
-- [ ] Character objects.
+- [x] Character objects.
     - [x] Include all stats exposed on game card as property.
     - [x] Maintain list of Actions that can be performed (include description and callback)
         - [ ] Show action description on hover?
@@ -116,7 +116,8 @@ Can also use `RETURN` while resolving attack dices in fights to automatically st
     - [x] List of Weapons
     - [ ] List of Tags this unit qualifies, helps when determining validity of target selection
     - [ ] Callbacks for character state changes:
-        - [x] `after_activation` or `on_activation_end`
+        - [x] `on_activation_end`
+        - [x] `on_incapacitated`
     - [x] Handle "injured" state
     - [x] Manage engage/conceal order
 - [ ] Strategic Ploy object
@@ -125,8 +126,8 @@ Can also use `RETURN` while resolving attack dices in fights to automatically st
     - [ ] Add support for all special rules (ceaseless, relentless, etc.)
 - [ ] Equipement Object
 - [ ] Tags namespace that manages all possible model tags
-- [ ] Mission objective objects
-    - [ ] Add special interact Action to units within range
+- [x] Mission objective objects
+    - [x] Add special interact Action to units within range
 - [x] Terrain
     - [x] Add different height levels
     - [ ] Vantage points

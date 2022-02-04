@@ -53,11 +53,30 @@ def has_melee_weapon(_, op):
 
 
 def able_to_pickup_objective(_, op):
-    # TODO: Check if within range of an objective marker
-    # Find objectives within range of operative
-    # Check that operative controls objects
+    from operatives import Operative
+    operative: Operative = op
+
     # Check that operative is not carrying another objective
-    return False
+    if operative.carrying_objective:
+        return False
+
+    # Find objective within range
+    objective: Objective = operative.get_objective_in_capture_range()
+    if objective == None:
+        return False
+
+    return objective.pickup_able
+
+
+def not_able_to_pickup_objective(_, op):
+    return not able_to_pickup_objective(_, op)
+
+
+def carrying_objective(_, op):
+    from operatives import Operative
+    operative: Operative = op
+
+    return operative.carrying_objective
 
 
 def controls_objective(_, op):
@@ -182,7 +201,14 @@ def can_pick_up():
     return all_of(
         once_per_turn,
         not_within_engagement_range_of_enemy,
+        controls_objective,
         able_to_pickup_objective,
+    )
+
+
+def can_drop_objective():
+    return all_of(
+        carrying_objective,
     )
 
 
@@ -191,6 +217,7 @@ def can_capture_objective():
         once_per_turn,
         not_within_engagement_range_of_enemy,
         controls_objective,
+        not_able_to_pickup_objective,
     )
 
 

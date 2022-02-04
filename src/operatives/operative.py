@@ -2,6 +2,7 @@ from typing import Callable, List, Tuple, Union
 from enum import Enum
 import pygame
 from abc import ABC
+from board.objectives.objective import Objective
 
 from board.terrain.traits import TerrainTrait
 from .datacard import *
@@ -58,6 +59,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.order = Order.CONCEAL
         self.action_points = 0
         self.wounds = self.datacard.physical_profile.wounds
+        self.carried_objective: Objective = None
 
         # Status
         self.deployed = False
@@ -73,6 +75,7 @@ class Operative(pygame.sprite.Sprite, ABC):
 
         # Callback hooks
         self.on_activation_end: Callable[[Operative], None] = []
+        self.on_incapacitated: Callable[[Operative], None] = []
 
         # Actions
         self.free_actions: List[str] = []  # Reference free actions by name
@@ -153,9 +156,14 @@ class Operative(pygame.sprite.Sprite, ABC):
         """Check if an operative is incapacitated and remove it if so.
         """
         if self.incapacitated:
-            # TODO: Call on_death hooks
-            self.team.operatives.remove(self)
             self.print(bold(with_color("Incapacited", 0xff0000)))
+
+            # Call on incapacitated hooks
+            for on_incapacitated in self.on_incapacitated:
+                on_incapacitated(self)
+
+            # Remove operative from team
+            self.team.operatives.remove(self)
 
     @property
     def order(self):
@@ -209,6 +217,10 @@ class Operative(pygame.sprite.Sprite, ABC):
             pygame.draw.circle(screen, self.color, self.ghost_pos,
                                self.rect.width/2, self.outline_width)
         self.ruler.redraw()
+
+    @property
+    def carrying_objective(self):
+        return self.carried_objective != None
 
     @property
     def apl_modifier(self):
@@ -285,6 +297,9 @@ class Operative(pygame.sprite.Sprite, ABC):
 
     def register_on_activation_end(self, cb):
         self.on_activation_end.append(cb)
+
+    def register_on_incapacitated(self, cb):
+        self.on_incapacitated.append(cb)
 
     def enemies_within_engagement_range(self, point: Tuple[int, int] = None):
         within_engagement_range = []

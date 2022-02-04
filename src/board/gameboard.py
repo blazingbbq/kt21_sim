@@ -39,6 +39,7 @@ class GameBoard:
         from operatives import Operative
         operative: Operative = op
         operative.show()
+        operative.show_datacard()
 
         # TODO: Show valid deployment zones
 

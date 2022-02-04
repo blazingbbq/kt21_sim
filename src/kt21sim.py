@@ -39,7 +39,8 @@ class KT21Sim:
         from board.objectives.objective import Objective
         gamestate.gameboard.add_objectives(
             Objective(pos=(gamestate.gameboard.rect.centerx,
-                           gamestate.gameboard.rect.centery + 200)),
+                           gamestate.gameboard.rect.centery + 200),
+                      pickup_able=True),
         )
 
         # Welcome messages
