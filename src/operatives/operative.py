@@ -244,6 +244,21 @@ class Operative(pygame.sprite.Sprite, ABC):
     def bs_ws_modifier(self):
         return -1 if self.injured else 0
 
+    def combat_support_against(self, defender):
+        from operatives import Operative
+        defender: Operative = defender
+
+        combat_support = 0
+        for ally in self.team.operatives:
+            if ally == self:
+                continue
+
+            engaged_with = ally.enemies_within_engagement_range()
+            if (len(engaged_with) == 1) and (defender in engaged_with):
+                combat_support += 1
+
+        return combat_support
+
     @property
     def movement_characteristic(self):
         movement_modifier = utils.distance.CIRCLE if self.injured else 0

@@ -89,12 +89,12 @@ class Weapon(ABC):
         # TODO: Prompt rerolls for special rules
         # TODO: Prompt rerolls from abilities or team mechanics
 
+        combat_support = attacker.combat_support_against(defender)
         # Sort normal and crit hits
         for roll in rolls:
             # Result of 1 is always a failed hit, else check BS
             # Result of 6 is always a successful hit
-            # TODO: If fighting, improve WS through combat support
-            if (roll == 1 or roll < self.skill + attacker.bs_ws_modifier) and roll != 6:
+            if (roll == 1 or roll < self.skill + attacker.bs_ws_modifier + combat_support) and roll != 6:
                 self.discard_attack_dice(roll, attacker)
                 continue
 
