@@ -108,7 +108,6 @@ class Team:
             # Nothing left to activate
             return False
 
-        # TODO: Show operative info on hover
         # Get operative selection, highlight ready operatives
         for op in ready_operatives:
             op.highlight(self.ready_operative_highlight_color)

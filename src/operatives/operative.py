@@ -182,8 +182,8 @@ class Operative(pygame.sprite.Sprite, ABC):
     def console_name(self):
         return bold(with_color("[" + self.datacard.operative_type.upper() + "]", color=self.console_name_color))
 
-    def print(self, str: str):
-        print(self.console_name + " " + str)
+    def print(self, msg: str):
+        print(self.console_name + " " + str(msg))
 
     def show_datacard(self):
         self.datacard.show()
@@ -245,7 +245,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         movement_modifier = utils.distance.CIRCLE if self.injured else 0
         return self.datacard.physical_profile.movement - movement_modifier
 
-    def activate(self):
+    def activate(self, activation_num: int = 1):
         # Select engage/conceal order
         if self.team.gamestate.current_turn != 1:
             self.select_order()
@@ -285,6 +285,35 @@ class Operative(pygame.sprite.Sprite, ABC):
 
         for on_activation_end in self.on_activation_end:
             on_activation_end(self)
+
+        # If group activated, find another unit to activate
+        while activation_num < self.datacard.physical_profile.group_activation:
+            # Find another operative of the same type to group activate
+            ready_operatives: list[Operative] = [op for op in self.team.operatives if (
+                op.ready and op.datacard.operative_type == self.datacard.operative_type)]
+
+            if len(ready_operatives) <= 0:
+                # No more operatives left to group activate
+                break
+
+            # Get operative selection, highlight ready operatives
+            for op in ready_operatives:
+                op.highlight(self.team.ready_operative_highlight_color)
+            for click_loc in utils.player_input.wait_for_click():
+                if click_loc != None:
+                    ga_operative = utils.collision.get_selected_sprite(
+                        click_loc, ready_operatives)
+                    if ga_operative != None:
+                        break
+                self.team.gamestate.redraw()
+            [op.unhighlight() for op in ready_operatives]
+            self.team.gamestate.redraw()
+
+            # Activate operative
+            activation_num += 1
+            ga_operative.activate(activation_num=activation_num)
+
+        # End Operative.activate #
 
     def select_order(self):
         orders = {"Engage": Order.ENGAGE, "Conceal": Order.CONCEAL}

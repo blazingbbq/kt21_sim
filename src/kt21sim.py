@@ -27,8 +27,10 @@ class KT21Sim:
         team1.add_operatives(
             TrooperVeteran(),
             TrooperVeteran(),
+            TrooperVeteran(),
         )
         team2.add_operatives(
+            KommandoBoy(),
             KommandoBoy(),
         )
 

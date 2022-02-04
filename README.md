@@ -94,8 +94,7 @@ Can also use `RETURN` while resolving attack dices in fights to automatically st
         - [x] fight
     - [x] Utility for rolling dice
     - [x] Utility for determining which team controls objective based on models within range
-    - [ ] Have chain activation queue that can insert other units so that they are activated immediately following another operative's activation.
-        - [ ] Or, make this a callback that gets registered in the operative's `on_activation_end` and removes itself from the list after being called
+    - [x] Have chain activation queue that can insert other units so that they are activated immediately following another operative's activation.
     - [ ] Maintain list of strategic ploys that can be used by each player
     - [ ] Save gamestate between each activation for rolling back actions
     - [ ] Add TacOps
