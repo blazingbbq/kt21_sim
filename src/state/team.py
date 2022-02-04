@@ -4,12 +4,15 @@ import utils.player_input
 import utils.collision
 import game.ui
 
+TEAM_NAME_CONSOLE_COLOR = 0x1d4a81
+
 
 class Team:
     ready_operative_highlight_color = 0x00ff00
 
     def __init__(self):
         # TODO: Include information about faction
+        self.console_name_color = TEAM_NAME_CONSOLE_COLOR
 
         # GameState attached when the team is added to the gamestate
         from state.gamestate import GameState
@@ -19,10 +22,24 @@ class Team:
         self.victory_points = 0
         self.command_points = 0
         self.has_initiative = False
+        self.is_attacker = False
         self.operatives: list[Operative] = []
 
         # Team based callbacks
         self.on_initiative_roll: list[Callable[[int], int]] = []
+
+    @property
+    def console_name(self):
+        return bold(with_color("[" + self.name.upper() + "]", color=self.console_name_color))
+
+    def print(self, msg: str):
+        print(self.console_name + " " + str(msg))
+
+    def score_victory_points(self, num: int = 1):
+        self.victory_points += num
+        points = "point" if num == 1 else "points"
+        self.print(
+            f"Scored {num} victory {points} ({self.victory_points} total)")
 
     @property
     def name(self):
@@ -69,7 +86,9 @@ class Team:
             return False
 
         # TODO: Deploy operatives in player decided order
+        # Check deployment zones
         op: Operative = undeployed_operatives.pop()
+        self.print(f"Deploying {op.console_name}")
         self.gamestate.gameboard.deploy(op)
         op.on_deployed()
 

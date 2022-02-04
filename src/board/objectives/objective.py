@@ -1,4 +1,4 @@
-from typing import Callable, Tuple
+from typing import Callable, Tuple, Union
 import pygame
 import utils.distance
 import game.preload
@@ -10,7 +10,10 @@ CAPTURE_RANGE_OUTLINE_WIDTH = 1
 
 
 class Objective(pygame.sprite.Sprite):
-    def __init__(self, pos: Tuple[int, int], pickup_able: bool = False):
+    def __init__(self, pos: Tuple[int, int],
+                 pickup_able: bool = False,
+                 once_per_turn: bool = False,
+                 max_interactions: Union[int, None] = None):
         self.color = DEFAULT_TOKEN_COLOR
         self.capture_range_visible: bool = False
         self.capture_range = utils.distance.OBJECTIVE_CAPTURE_RANGE
@@ -26,7 +29,20 @@ class Objective(pygame.sprite.Sprite):
         self.on_capture_callbacks: Callable[[Objective, Operative], None] = []
         self.on_pickup_callbacks: Callable[[Objective, Operative], None] = []
 
+        # Behavior
         self.pickup_able = pickup_able
+        self.once_per_turn = once_per_turn
+        self.turn_last_interacted_with = 0
+        self.max_interactions = max_interactions
+        self.current_interactions = 0
+
+    def can_be_interacted_with(self):
+        from state import GameState
+        gamestate: GameState = game.state.get()
+        if self.once_per_turn and gamestate.current_turn <= self.turn_last_interacted_with:
+            return False
+
+        return True
 
     def show_capture_range(self):
         self.capture_range_visible = True
@@ -37,12 +53,24 @@ class Objective(pygame.sprite.Sprite):
     def move_to(self, center: Tuple[float, float]):
         self.rect.center = center
 
+    def register_on_capture(self, cb):
+        self.on_capture_callbacks.append(cb)
+
+    def register_on_pickup(self, cb):
+        self.on_pickup_callbacks.append(cb)
+
     def on_capture(self, op):
         from operatives import Operative
         operative: Operative = op
 
         for on_capture in self.on_capture_callbacks:
             on_capture(self, operative)
+
+        self.turn_last_interacted_with = game.state.get().current_turn
+        self.current_interactions += 1
+        if self.max_interactions != None and self.current_interactions >= self.max_interactions:
+            # Remove this objective from the field
+            game.state.get().gameboard.objectives.remove(self)
 
     def on_pickup(self, op):
         from operatives import Operative
@@ -55,6 +83,12 @@ class Objective(pygame.sprite.Sprite):
 
         for on_pickup in self.on_pickup_callbacks:
             on_pickup(self, operative)
+
+        self.turn_last_interacted_with = game.state.get().current_turn
+        self.current_interactions += 1
+        if self.max_interactions != None and self.current_interactions >= self.max_interactions:
+            # TODO: Implement this if the situation comes up
+            pass
 
     def redraw(self):
         if not self.color:

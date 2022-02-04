@@ -79,6 +79,18 @@ def carrying_objective(_, op):
     return operative.carrying_objective
 
 
+def can_interact_with_objective(_, op):
+    from operatives import Operative
+    capturing_operative: Operative = op
+
+    # Find objective within range
+    objective: Objective = capturing_operative.get_objective_in_capture_range()
+    if objective == None:
+        return False
+
+    return objective.can_be_interacted_with()
+
+
 def controls_objective(_, op):
     from operatives import Operative
     capturing_operative: Operative = op
@@ -201,6 +213,7 @@ def can_pick_up():
     return all_of(
         once_per_turn,
         not_within_engagement_range_of_enemy,
+        can_interact_with_objective,
         controls_objective,
         able_to_pickup_objective,
     )
@@ -216,6 +229,7 @@ def can_capture_objective():
     return all_of(
         once_per_turn,
         not_within_engagement_range_of_enemy,
+        can_interact_with_objective,
         controls_objective,
         not_able_to_pickup_objective,
     )
