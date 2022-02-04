@@ -97,7 +97,7 @@ def drop_objective(op):
     for click_loc in utils.player_input.wait_for_click():
         objective.ruler.measure_and_show(from_=operative.rect.center,
                                          towards=utils.player_input.mouse_pos(),
-                                         max_length=utils.distance.TRIANGLE + operative.datacard.physical_profile.base / 2,
+                                         max_length=utils.distance.TRIANGLE + operative.base_radius,
                                          color=0xffffff)
 
         if click_loc != None:

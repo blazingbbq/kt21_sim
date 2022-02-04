@@ -92,7 +92,7 @@ def controls_objective(_, op):
     enemy_apl = 0
     for team in capturing_operative.team.gamestate.teams:
         for check_operative in team.operatives:
-            if utils.distance.between(check_operative.rect.center, objective.rect.center) < check_operative.datacard.physical_profile.base / 2 + objective.capture_range:
+            if utils.distance.between(check_operative.rect.center, objective.rect.center) < check_operative.base_radius + objective.capture_range:
                 if team == capturing_operative.team:
                     friendly_apl += check_operative.datacard.physical_profile.action_point_limit
                 else:

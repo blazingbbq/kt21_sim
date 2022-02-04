@@ -185,6 +185,10 @@ class Operative(pygame.sprite.Sprite, ABC):
     def print(self, msg: str):
         print(self.console_name + " " + str(msg))
 
+    @property
+    def base_radius(self):
+        return self.datacard.physical_profile.base / 2
+
     def show_datacard(self):
         self.datacard.show()
 
@@ -313,7 +317,7 @@ class Operative(pygame.sprite.Sprite, ABC):
             activation_num += 1
             ga_operative.activate(activation_num=activation_num)
 
-        # End Operative.activate #
+        ### End Operative.activate ###
 
     def select_order(self):
         orders = {"Engage": Order.ENGAGE, "Conceal": Order.CONCEAL}
@@ -341,7 +345,7 @@ class Operative(pygame.sprite.Sprite, ABC):
 
     def get_objective_in_capture_range(self):
         for o in self.team.gamestate.gameboard.objectives:
-            if utils.distance.between(self.rect.center, o.rect.center) < self.datacard.physical_profile.base / 2 + o.capture_range:
+            if utils.distance.between(self.rect.center, o.rect.center) < self.base_radius + o.capture_range:
                 return o
 
         # No objectives in range
@@ -394,16 +398,16 @@ class Operative(pygame.sprite.Sprite, ABC):
 
                     # If charging or falling back, only check for overlapping bases
                     if charging or falling_back:
-                        if distance < self.datacard.physical_profile.base / 2 + operative.datacard.physical_profile.base / 2:
+                        if distance < self.base_radius + operative.base_radius:
                             return False
-                    elif distance < self.datacard.physical_profile.base / 2 + operative.datacard.physical_profile.base / 2 + utils.distance.ENGAGEMENT_RANGE:
+                    elif distance < self.base_radius + operative.base_radius + utils.distance.ENGAGEMENT_RANGE:
                         return False
 
         # TODO: Ignore this rule if we're ontop of a vantage point (only check features that are TALL)
         # Cannot end move on top of terrain
         for feature in self.team.gamestate.gameboard.features_with_trait(TerrainTrait.LIGHT) + self.team.gamestate.gameboard.features_with_trait(TerrainTrait.HEAVY):
             if utils.collision.circle_rect_collide(circle=self.ruler.destination,
-                                                   radius=self.datacard.physical_profile.base / 2,
+                                                   radius=self.base_radius,
                                                    rect=feature.rect):
                 return False
 
@@ -536,7 +540,7 @@ class Operative(pygame.sprite.Sprite, ABC):
             for operative in team.operatives:
                 # Check weapon's range, if it has one
                 if weapon.range and utils.distance.between(self.rect.center, operative.rect.center) > \
-                        weapon.range + self.datacard.physical_profile.base / 2 + operative.datacard.physical_profile.base / 2:
+                        weapon.range + self.base_radius + operative.base_radius:
                     continue
 
                 # Enemy is valid target if it is within Line of Sight

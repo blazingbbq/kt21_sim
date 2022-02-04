@@ -69,9 +69,9 @@ def obscured(source, target):
                     target_outside_circle = False
                     for p in clipped_line:
                         source_within_triangle = source_within_triangle or utils.distance.between(
-                            p, source.rect.center) < utils.distance.TRIANGLE + source.datacard.physical_profile.base / 2
+                            p, source.rect.center) < utils.distance.TRIANGLE + source.base_radius
                         target_outside_circle = target_outside_circle or utils.distance.between(
-                            p, target.rect.center) > utils.distance.CIRCLE + target.datacard.physical_profile.base / 2
+                            p, target.rect.center) > utils.distance.CIRCLE + target.base_radius
 
                     # The intended target is more than CIRCLE from a point at
                     # which a Cover line crosses a terrain feature that is
@@ -94,7 +94,7 @@ def in_cover(source, target):
 
     # If the intended target is within CIRCLE from the active operative,
     # they are cannot be considered in cover
-    if utils.distance.between(source.rect.center, target.rect.center) <= utils.distance.CIRCLE + source.datacard.physical_profile.base / 2 + target.datacard.physical_profile.base / 2:
+    if utils.distance.between(source.rect.center, target.rect.center) <= utils.distance.CIRCLE + source.base_radius + target.base_radius:
         return False
 
     source_check_points = _generate_base_check_points(
@@ -118,7 +118,7 @@ def in_cover(source, target):
                         # The intended target is within TRIANGLE of a point at
                         # which a Cover line crosses a terrain feature that
                         # provides Cover(see Terrain Traits).
-                        if utils.distance.between(p, target.rect.center) < utils.distance.TRIANGLE + target.datacard.physical_profile.base / 2:
+                        if utils.distance.between(p, target.rect.center) < utils.distance.TRIANGLE + target.base_radius:
                             return True
 
     return False
