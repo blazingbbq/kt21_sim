@@ -71,7 +71,7 @@ Can also use `RETURN` while resolving attack dices in fights to automatically st
         - [ ] Climb
         - [ ] Drop
         - [x] Flying Over Terrain
-    - [ ] Example Boards
+    - [x] Example Boards
     - [x] Example Terrain Features
 - [ ] Ways to Play
     - [ ] Open Play

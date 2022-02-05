@@ -443,6 +443,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         # Show objective capture ranges
         if not charging:
             self.team.gamestate.gameboard.show_objective_ranges()
+        self.team.gamestate.gameboard.show_terrain_outlines()
 
         # Create a new Distance object to prevent us from accidentally changing the reference we're given
         remaining_movement = utils.distance.Distance(distance)
@@ -495,8 +496,9 @@ class Operative(pygame.sprite.Sprite, ABC):
 
         # Hide engagement ranges of enemy operatives
         self.hide_enemy_engagement_ranges()
-        # Hide objective capture ranges
+        # Hide objective capture ranges and terrain outlines
         self.team.gamestate.gameboard.hide_objective_ranges()
+        self.team.gamestate.gameboard.hide_terrain_outlines()
 
         # If charging, must finish move within engagement range of enemy unit
         num_enemies_within_engagement_range = len(

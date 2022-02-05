@@ -1,14 +1,15 @@
-from board import gameboard
+from board.killzones.loot_and_salvage_killzone import LootAndSalvageKillzone
 from .mission import Mission
 from state import GameState
 import game.state
 from board.objectives import Objective
 import utils.distance
+import missions.names
 
 
 class LootAndSalvage(Mission):
     def __init__(self):
-        super().__init__()
+        super().__init__(name=missions.names.LOOT_AND_SALVAGE)
 
         self.objectives_secured_this_turn = 0
         self.current_turn = 0
@@ -21,6 +22,9 @@ class LootAndSalvage(Mission):
         if self.objectives_secured_this_turn < 4:
             self.objectives_secured_this_turn += 1
             operative.team.score_victory_points(1)
+
+    def determine_killzone(self):
+        LootAndSalvageKillzone(self.gamestate.gameboard)
 
     def setup_objective_markers(self):
         gamestate: GameState = game.state.get()

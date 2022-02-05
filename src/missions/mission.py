@@ -1,20 +1,30 @@
 from abc import ABC, abstractmethod
 from board.killzones.default_killzone import DefaultKillzone
 import game.state
-from state import GameState, gamestate
+from state import GameState
 from state.team import *
 from operatives import *
+from game.console import print
+
+MISSION_CONSOLE_NAME_COLOR = 0xffffff
+MISSION_CONSOLE_TEXT_COLOR = 0xffffff
 
 
 class Mission(ABC):
-    def __init__(self):
+    def __init__(self, name: str):
         self.gamestate: GameState = game.state.get()
+        self.name = name
+        self.console_name_color = MISSION_CONSOLE_NAME_COLOR
+
+        # Print mission selection to console
+        print(bold("Selected mission: ") + self.console_name)
 
         # Setup teams
         team1 = Team()
         team2 = Team()
         self.gamestate.add_teams(team1, team2)
 
+        # Run through mission sequence
         self.determine_killzone()
         self.setup_objective_markers()
 
@@ -25,9 +35,12 @@ class Mission(ABC):
         self.setup_barricades()
         self.deploy_operatives()
 
+    @property
+    def console_name(self):
+        return bold(with_color("[" + self.name.upper() + "]", color=self.console_name_color))
+
     def determine_killzone(self):
         # Determine killzone
-
         # TODO: Select from selection list
         DefaultKillzone(self.gamestate.gameboard)
 

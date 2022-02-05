@@ -25,7 +25,7 @@ class KT21Sim:
         note_text = with_background("NOTE:", 0x0077bb)
         print(bold("Welcome to KT21SIM"))
         print(bold(note_text) + italic(
-            f" For any action, press {escape_text} to cancel the action, and {return_text} to end the action early."))
+            f" For any action, press {escape_text} to cancel the action, and {return_text} to end the action early." + newline()))
 
         # TODO: Select mission from list
         mission: Mission = LootAndSalvage()

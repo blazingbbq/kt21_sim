@@ -80,6 +80,14 @@ class GameBoard:
         for objective in self.objectives:
             objective.hide_capture_range()
 
+    def show_terrain_outlines(self):
+        for terrain in self.terrain:
+            terrain.show_outlines()
+
+    def hide_terrain_outlines(self):
+        for terrain in self.terrain:
+            terrain.hide_outlines()
+
     def redraw(self):
         screen = pygame.display.get_surface()
         pygame.draw.rect(screen, self.board_color, self.rect)

@@ -2,14 +2,14 @@ from typing import List
 import pygame
 from board.terrain.traits import TerrainTrait
 
-LIGHT_TERRAIN_COLOR = 0x354c29
-HEAVY_TERRAIN_COLOR = 0x323848
-VANTAGE_POINT_COLOR = 0x553c34
+LIGHT_TERRAIN_COLOR = 0x214037
+HEAVY_TERRAIN_COLOR = 0x213442
+VANTAGE_POINT_COLOR = 0x273437
 
-TRAVERSABLE_TERRAIN_OUTLINE_COLOR = LIGHT_TERRAIN_COLOR + 0x333333
-SCALABLE_TERRAIN_OUTLINE_COLOR = HEAVY_TERRAIN_COLOR + 0x333333
+TRAVERSABLE_TERRAIN_OUTLINE_COLOR = 0x5f8745
+SCALABLE_TERRAIN_OUTLINE_COLOR = 0x3b598b
 
-TERRAIN_OUTLINE_WIDTH = 2
+TERRAIN_OUTLINE_WIDTH = 1
 TERRAIN_BORDER_RADIUS = 2
 
 
@@ -64,7 +64,7 @@ class Feature(pygame.sprite.Sprite):
                 pygame.draw.rect(
                     surface=pygame.display.get_surface(),
                     color=TRAVERSABLE_TERRAIN_OUTLINE_COLOR,
-                    rect=self.get_rect(),
+                    rect=self.rect,
                     border_radius=self.border_radius,
                     width=TERRAIN_OUTLINE_WIDTH,
                 )
@@ -72,7 +72,7 @@ class Feature(pygame.sprite.Sprite):
                 pygame.draw.rect(
                     surface=pygame.display.get_surface(),
                     color=SCALABLE_TERRAIN_OUTLINE_COLOR,
-                    rect=self.get_rect(),
+                    rect=self.rect,
                     border_radius=self.border_radius,
                     width=TERRAIN_OUTLINE_WIDTH,
                 )
