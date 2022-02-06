@@ -1,9 +1,13 @@
 import random
+from typing import Union
 
 
 class Dice:
-    def __init__(self):
-        self.value = random.randint(1, 6)
+    def __init__(self, val: Union[int, None] = None):
+        if val == None:
+            self.value = random.randint(1, 6)
+        else:
+            self.value = val
         self.rerolled = False
 
     def can_reroll(self):

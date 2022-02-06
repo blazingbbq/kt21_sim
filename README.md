@@ -77,6 +77,16 @@ Can also use `RETURN` while resolving attack dices in fights to automatically st
     - [ ] Open Play
     - [ ] Matched Play
     - [ ] Narrative Play
+- [ ] Critical Operations Mission Pack
+    - [ ] 1.1 Loot and Salvage
+    - [ ] 1.2 Consecration
+    - [ ] 1.3 Awaken the Data-spirits
+    - [ ] 2.1 Escalating Hostilities
+    - [ ] 2.2 Seize Ground
+    - [ ] 2.3 Domination
+    - [ ] 3.1 Secure Archeotech
+    - [ ] 3.2 Duel of Wits
+    - [ ] 3.3 Master the Terminals
 
 ## Development Roadmap
 
@@ -100,9 +110,9 @@ Can also use `RETURN` while resolving attack dices in fights to automatically st
     - [ ] Add TacOps
         - [ ] Allow players to pick tacops at start of game
         - [ ] Allow choice between the available archetypes satisfied by faction / fireteam
-    - [ ] Add utilities for scoring victory points
+    - [x] Add utilities for scoring victory points
 - [x] Add standalone utility classes for resolving shooting / fighting
-    - [ ] Retaining dice for cover (include callback for special handling like retaining 2 dice instead of one?)
+    - [x] Retaining dice for cover (include callback for special handling like retaining 2 dice instead of one?)
 - [x] Turnphase objects for each phase in the game. Loop through these until all turns have elapsed
     - [ ] Callback hooks for different phases of the game where armies could have actions to take (e.g. guardsmen orders)
     - [x] Roll initiative

@@ -118,10 +118,16 @@ class Weapon(ABC):
         defender: Operative = defender
         normal_saves, critical_saves = [], []
 
-        # TODO: Can retain 1 successful normal save if in cover
+        # Can retain 1 successful normal save if in cover
+        retain_cover_dice = False
+        if utils.line_of_sight.in_cover(source=attacker, target=defender):
+            retain_cover_dice = utils.player_input.prompt_true_false(
+                msg=f"Retain one dice as a successful normal save?")
+            normal_saves.append(utils.dice.Dice(5))
 
+        cover_modifier = -1 if retain_cover_dice else 0
         rolls = [utils.dice.roll() for _ in range(
-            defender.datacard.physical_profile.defence + self.ap_modifier)]
+            defender.datacard.physical_profile.defence + self.ap_modifier + cover_modifier)]
 
         # TODO: Prompt rerolls from abilities or team mechanics
 
