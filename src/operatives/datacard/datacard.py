@@ -60,11 +60,11 @@ class Datacard:
         text = ""
         text += bold(" [" + self.operative_type.upper() + "]") + newline()
         text += _with_orange_bg(
-            "  M  APL  GA  DF  SV  W  Base  ") + newline()
-        text += _with_white_bg(f"  {int(self.physical_profile.movement)}   {self.physical_profile.action_point_limit}   {self.physical_profile.group_activation}   {self.physical_profile.defence}   {self.physical_profile.save}+  {rendered_wounds} {rendered_base}mm  ") + newline()
+            "    M   APL   GA   DF   SV   W   Base     ") + newline()
+        text += _with_white_bg(f"    {int(self.physical_profile.movement)}    {self.physical_profile.action_point_limit}    {self.physical_profile.group_activation}    {self.physical_profile.defence}    {self.physical_profile.save}+   {rendered_wounds}  {rendered_base}mm     ") + newline()
 
         text += _with_grey_dark_bg(
-            "  Name              A   BS  D     SR   ! ") + newline()
+            "  Name              A   BS  D     SR   !  ") + newline()
 
         with_current_bg = None
         for ranged_weapon in self.ranged_weapon_profiles + self.melee_weapon_profiles:
@@ -73,20 +73,20 @@ class Datacard:
             rendered_name = "{:<16}".format(ranged_weapon.name)
             rendered_attacks = "{:<2}".format(ranged_weapon.attacks)
             text += with_current_bg(
-                f"  {rendered_name}  {rendered_attacks}  {ranged_weapon.skill}+ {ranged_weapon.normal_damage}/{ranged_weapon.critical_damage}    -    - ") + newline()
+                f"  {rendered_name}  {rendered_attacks}  {ranged_weapon.skill}+ {ranged_weapon.normal_damage}/{ranged_weapon.critical_damage}    -    -  ") + newline()
 
         text += _with_grey_dark_bg(
-            "  Abilities                              ") + newline()
+            "  Abilities                               ") + newline()
         if len(self.abilities) <= 0:
             text += _with_grey_light_1_bg(
-                "  -                                      ") + newline()
+                "  -                                       ") + newline()
         # TODO: Display ability names
 
         text += _with_grey_dark_bg(
-            "  Unique Actions                         ") + newline()
+            "  Unique Actions                          ") + newline()
         if len(self.unique_actions) <= 0:
             text += _with_grey_light_1_bg(
-                "  -                                      ") + newline()
+                "  -                                       ") + newline()
         # TODO: Display special rule names
 
         return text

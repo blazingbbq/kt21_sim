@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from board.killzones.default_killzone import DefaultKillzone
 import game.state
+import operatives.tyranids
 from state import GameState
 from state.team import *
 from operatives import *
@@ -66,8 +67,9 @@ class Mission(ABC):
             TrooperVeteran(),
         )
         self.gamestate.teams[1].add_operatives(
-            KommandoBoy(),
-            KommandoBoy(),
+            operatives.tyranids.Hormagaunt(),
+            operatives.tyranids.Termagant(),
+            operatives.tyranids.Genestealer(),
         )
 
     def setup_barricades(self):

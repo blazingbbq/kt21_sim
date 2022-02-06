@@ -20,6 +20,12 @@ class SpecialRule(Enum):
     HOT = 3
     AP_1 = 4
     AP_2 = 5
+    CEASELESS = 6  # TODO: Implement
+    RELENTLESS = 7  # TODO: Implement
+
+
+class CritRule(Enum):
+    RENDING = 1  # TODO: Implement
 
 
 class Weapon(ABC):
