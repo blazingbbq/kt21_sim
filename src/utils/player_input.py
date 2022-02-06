@@ -3,6 +3,7 @@ import functools
 import pygame
 import game.ui
 import game.clock
+import game.state
 
 MIN_HOVER_TIME_MS = 300  # Minimum time stationary before considering it a hover
 
@@ -106,3 +107,69 @@ def select_from_list(relative_to: Tuple[int, int], items: Union[List[str], List[
         if selection != None:
             game.ui.remove(selection_list)
         yield selection
+
+
+def prompt_true_false(msg: str,
+                      truthy_text: str = "Yes",
+                      falsy_text: str = "No"):
+    # Panel
+    panel_rect = pygame.rect.Rect((0, 0), (400, 100))
+    panel_rect.center = game.ui.layout.window.center
+    panel = game.ui.elements.UIPanel(
+        relative_rect=panel_rect,
+        manager=game.ui.manager,
+        starting_layer_height=0,
+        container=game.ui.layout.window_container,
+        # margins=game.ui.layout.default_margins,
+    )
+
+    # Prompt text
+    label_padding_top = 12
+    label_padding_sides = 10
+    label_text_height = 24
+    label = game.ui.elements.UILabel(
+        relative_rect=pygame.Rect(
+            label_padding_sides, label_padding_top, panel_rect.width - 2 * label_padding_sides, label_text_height),
+        text=msg,
+        manager=game.ui.manager,
+        container=panel,
+    )
+
+    # Buttons
+    button_padding = 2
+    button_offset_centery = 8
+    button_width = 100
+    button_height = 24
+    yes_button = game.ui.elements.UIButton(
+        relative_rect=pygame.Rect(
+            panel_rect.width/2 + button_padding, panel_rect.height/2 + button_offset_centery, button_width, button_height),
+        text=truthy_text,
+        starting_height=1,
+        container=panel,
+        manager=game.ui.manager,
+        visible=True,
+    )
+    no_button = game.ui.elements.UIButton(
+        relative_rect=pygame.Rect(
+            panel_rect.width/2 - button_width - button_padding, panel_rect.height/2 + button_offset_centery, button_width, button_height),
+        text=falsy_text,
+        starting_height=1,
+        container=panel,
+        manager=game.ui.manager,
+        visible=True,
+    )
+
+    result = False
+    while True:
+        if key_pressed(pygame.K_ESCAPE) or no_button.check_pressed():
+            result = False
+            break
+        if key_pressed(pygame.K_RETURN) or yes_button.check_pressed():
+            result = True
+            break
+        game.state.get().redraw()
+
+    # Cleanup panel
+    game.ui.remove(panel)
+    game.state.get().redraw()
+    return result

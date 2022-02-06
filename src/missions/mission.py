@@ -6,6 +6,7 @@ from state import GameState
 from state.team import *
 from operatives import *
 from game.console import print
+import utils.dice
 
 MISSION_CONSOLE_NAME_COLOR = 0xffffff
 MISSION_CONSOLE_TEXT_COLOR = 0xffffff
@@ -51,9 +52,24 @@ class Mission(ABC):
         pass
 
     def determine_attacker(self):
-        # TODO: roll off, winner decides who is attacker and defender
-        self.gamestate.teams[0].is_attacker = True
-        self.gamestate.teams[0].has_initiative = True
+        # Roll off to decide who is the attacker and defender
+        team1_roll = utils.dice.roll()
+        team2_roll = utils.dice.roll()
+
+        # Ensure both teams roll different result
+        while team1_roll == team2_roll:
+            team1_roll = utils.dice.roll()
+            team2_roll = utils.dice.roll()
+
+        # Prompt winning player to be attacker
+        decider_idx = 0 if team1_roll > team2_roll else 1
+        attacker_decision = utils.player_input.prompt_true_false(
+            msg=f"{self.gamestate.teams[decider_idx].name}, do you want to be the attacker?")
+        attacker_idx = decider_idx if attacker_decision == True else (
+            decider_idx + 1) % 2
+
+        self.gamestate.teams[attacker_idx].is_attacker = True
+        self.gamestate.teams[attacker_idx].has_initiative = True
 
     def select_dropzones(self):
         # TODO: Defender selects dropzone

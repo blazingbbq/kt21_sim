@@ -18,6 +18,7 @@ class KT21Sim:
 
         # Init gamestate
         gamestate: GameState = game.state.init()
+        gamestate.redraw()
 
         # Welcome messages
         escape_text = keyname("ESCAPE")
