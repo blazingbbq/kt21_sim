@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from board.dropzone import DropZone
 from board.killzones.default_killzone import DefaultKillzone
 import game.state
 import operatives.tyranids
@@ -10,6 +11,8 @@ import utils.dice
 
 MISSION_CONSOLE_NAME_COLOR = 0xffffff
 MISSION_CONSOLE_TEXT_COLOR = 0xffffff
+
+NUM_BARRICADES_PER_TEAM = 2
 
 
 class Mission(ABC):
@@ -71,9 +74,39 @@ class Mission(ABC):
         self.gamestate.teams[attacker_idx].is_attacker = True
         self.gamestate.teams[attacker_idx].has_initiative = True
 
+    @abstractmethod
+    def generate_dropzones(self) -> List[DropZone]:
+        return []
+
     def select_dropzones(self):
-        # TODO: Defender selects dropzone
-        pass
+        # Defender selects dropzone
+        defender_idx = 0
+        while defender_idx < len(self.gamestate.teams) and self.gamestate.teams[defender_idx].is_attacker:
+            defender_idx += 1
+
+        self.gamestate.gameboard.dropzones = self.generate_dropzones()
+        self.gamestate.gameboard.show_dropzones()
+        print(
+            f"{self.gamestate.teams[defender_idx].console_name} Select drop zone")
+
+        # Wait for player to select a dropzone
+        defender_dropzone_idx = None
+        for click_loc in utils.player_input.wait_for_click():
+            if click_loc != None:
+                for i, dropzone in enumerate(self.gamestate.gameboard.dropzones):
+                    if dropzone.collide_point(click_loc):
+                        defender_dropzone_idx = i
+
+            if defender_dropzone_idx != None:
+                break
+            self.gamestate.redraw()
+
+        self.gamestate.gameboard.hide_dropzones()
+        self.gamestate.redraw()
+
+        self.gamestate.teams[defender_idx].dropzone = self.gamestate.gameboard.dropzones[defender_dropzone_idx]
+        self.gamestate.teams[(defender_idx + 1) % len(self.gamestate.teams)].dropzone = self.gamestate.gameboard.dropzones[(
+            defender_dropzone_idx + 1) % len(self.gamestate.gameboard.dropzones)]
 
     def assemble_killteams(self):
         # TODO: Both players simultaneously select killteams from their rosters
@@ -89,10 +122,19 @@ class Mission(ABC):
         )
 
     def setup_barricades(self):
-        # TODO: Starting with defender, players alternate setting up barricades
-        # Must be within PENTAGON of player's dropzone and not on terrain feature
+        # Starting with defender
+        defender_idx = 0
+        while defender_idx < len(self.gamestate.teams) and self.gamestate.teams[defender_idx].is_attacker:
+            defender_idx += 1
 
-        pass
+        num_teams = len(self.gamestate.teams)
+        for i in range(0, num_teams * NUM_BARRICADES_PER_TEAM):
+            deploying_team = self.gamestate.teams[(
+                defender_idx + i) % num_teams]
+            print(
+                f"{deploying_team.console_name} Deploy barricade")
+
+            self.gamestate.gameboard.deploy_barricade(deploying_team)
 
     def deploy_operatives(self):
         # Defender deploys all their operatives first

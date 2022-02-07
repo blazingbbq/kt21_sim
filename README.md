@@ -15,6 +15,8 @@ Use the `--dependencies` flag to install required dependencies.
 Wherever applicable, use `ESCAPE` to cancel actions and `RETURN` to confirm actions (and end them early).
 Can also use `RETURN` while resolving attack dices in fights to automatically strike with the highest dice rolled.
 
+During barricade deployment, rotate barricades using `E`, `Q` or `ARROW_LEFT`, `ARROW_RIGHT`.
+
 ## Core Rules
 
 - [x] Tools of War

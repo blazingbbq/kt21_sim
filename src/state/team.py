@@ -1,4 +1,5 @@
 from typing import Callable
+from board.dropzone import DropZone
 from operatives import *
 import utils.player_input
 import utils.collision
@@ -18,6 +19,7 @@ class Team:
         from state.gamestate import GameState
         self.gamestate: GameState = None
         self.team_id: int = None
+        self.dropzone: DropZone = None
 
         self.victory_points = 0
         self.command_points = 0
@@ -86,7 +88,6 @@ class Team:
             return False
 
         # TODO: Deploy operatives in player decided order
-        # Check deployment zones
         op: Operative = undeployed_operatives.pop()
         self.print(f"Deploying {op.console_name}")
         self.gamestate.gameboard.deploy(op)

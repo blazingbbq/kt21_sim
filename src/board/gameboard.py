@@ -1,7 +1,10 @@
 import pygame
+from board.dropzone import DropZone
 from board.objectives.objective import Objective
+from board.terrain.pieces.barricade import Barricade
 
 from board.terrain.traits import TerrainTrait
+from utils.collision import circle_rect_collide
 from .terrain import *
 import utils.distance
 import utils.player_input
@@ -25,6 +28,7 @@ class GameBoard:
         # Terrain features
         self.terrain: Terrain = []
         self.objectives: Objective = []
+        self.dropzones: DropZone = []
 
         # Gameboard features
         self.width = utils.distance.from_inch(GAMEBOARD_WIDTH)
@@ -35,26 +39,94 @@ class GameBoard:
             0, 0, self.width.to_screen_size(), self.height.to_screen_size())
         self.rect.center = screen.get_rect().center
 
+    def deploy_barricade(self, team):
+        from state import Team
+        team: Team = team
+
+        barricade = Barricade(pos=utils.player_input.mouse_pos())
+        self.add_terrain(barricade)
+
+        # Show drop zone for reference
+        team.dropzone.show_valid_barricade_deployment()
+        team.dropzone.modify_color_on_hover = False
+
+        for click_loc in utils.player_input.wait_for_click():
+            # Listen for barricade rotation
+            if utils.player_input.key_pressed(pygame.K_e) or \
+                    utils.player_input.key_pressed(pygame.K_q) or \
+                    utils.player_input.key_pressed(pygame.K_LEFT) or \
+                    utils.player_input.key_pressed(pygame.K_RIGHT):
+                barricade.rotate()
+
+            # Move and validate deployment location
+            barricade.move_to(utils.player_input.mouse_pos())
+            valid_deployment = barricade.validate_deployment(team.dropzone)
+            if click_loc != None and valid_deployment:
+                break
+
+            self.gamestate.redraw()
+
+        # Cleanup
+        barricade.unhighlight()
+        team.dropzone.hide_valid_barricade_deployment()
+        team.dropzone.modify_color_on_hover = True
+        barricade.move_to(click_loc)
+        self.gamestate.redraw()
+
     def deploy(self, op):
         from operatives import Operative
         operative: Operative = op
         operative.show()
         operative.show_datacard()
+        dropzone: DropZone = operative.team.dropzone
 
-        # TODO: Show valid deployment zones
+        # Show valid deployment zones
+        dropzone.show()
+        dropzone.modify_color_on_hover = False
 
         for click_loc in utils.player_input.wait_for_click():
-            if click_loc != None and self.valid_deploy_loc(click_loc):
-                break
             operative.move_to(utils.player_input.mouse_pos())
+            valid_deploy = self.valid_deploy_loc(operative, dropzone)
+            if click_loc != None and valid_deploy:
+                break
+
+            if valid_deploy:
+                dropzone.highlight()
+            else:
+                dropzone.unhighlight()
             self.gamestate.redraw()
 
+        dropzone.modify_color_on_hover = True
+        dropzone.unhighlight()
+        dropzone.hide()
         operative.move_to(click_loc)
         self.gamestate.redraw()
 
-    def valid_deploy_loc(self, loc):
-        # TODO: Check deployment validity using terrain and deployment zones
-        return self.rect.collidepoint(loc)
+    def valid_deploy_loc(self, operative, dropzone: DropZone):
+        from operatives import Operative
+        operative: Operative = operative
+
+        # Check that operative is entirely within dropzone
+        if not dropzone.entirely_within(operative=operative):
+            return False
+
+        # Check that operative does not overlap terrain
+        for terrain in self.gamestate.gameboard.terrain:
+            for feature in terrain.features:
+                if circle_rect_collide(circle=operative.rect.center,
+                                       radius=operative.base_radius,
+                                       rect=feature.rect):
+                    return False
+
+        # Check that operative does not overlap friendly unit
+        for op in operative.team.operatives:
+            if op == operative:
+                continue
+            if utils.distance.between(op.rect.center, operative.rect.center) < op.base_radius + operative.base_radius:
+                return False
+
+        # All conditions hold, deployment is valid
+        return True
 
     def add_terrain(self, *terrain: Terrain):
         for t in terrain:
@@ -88,6 +160,14 @@ class GameBoard:
         for terrain in self.terrain:
             terrain.hide_outlines()
 
+    def show_dropzones(self):
+        for dropzone in self.dropzones:
+            dropzone.show()
+
+    def hide_dropzones(self):
+        for dropzone in self.dropzones:
+            dropzone.hide()
+
     def redraw(self):
         screen = pygame.display.get_surface()
         pygame.draw.rect(screen, self.board_color, self.rect)
@@ -101,3 +181,7 @@ class GameBoard:
         # Redraw terrain
         for terrain in self.terrain:
             terrain.redraw()
+
+        # Redraw dropzones
+        for dropzone in self.dropzones:
+            dropzone.redraw()

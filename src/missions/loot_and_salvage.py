@@ -1,3 +1,5 @@
+import pygame
+from board.dropzone import DropZone
 from board.killzones.loot_and_salvage_killzone import LootAndSalvageKillzone
 from .mission import Mission
 from state import GameState
@@ -25,6 +27,22 @@ class LootAndSalvage(Mission):
 
     def determine_killzone(self):
         LootAndSalvageKillzone(self.gamestate.gameboard)
+
+    def generate_dropzones(self):
+        dropzone1 = DropZone(rects=[pygame.Rect(
+            self.gamestate.gameboard.rect.left,
+            self.gamestate.gameboard.rect.top,
+            utils.distance.SQUARE.to_screen_size(),
+            self.gamestate.gameboard.rect.height),
+        ])
+        dropzone2 = DropZone(rects=[pygame.Rect(
+            self.gamestate.gameboard.rect.right - utils.distance.SQUARE.to_screen_size(),
+            self.gamestate.gameboard.rect.top,
+            utils.distance.SQUARE.to_screen_size(),
+            self.gamestate.gameboard.rect.height),
+        ])
+
+        return [dropzone1, dropzone2]
 
     def setup_objective_markers(self):
         gamestate: GameState = game.state.get()
