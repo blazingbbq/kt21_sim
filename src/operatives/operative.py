@@ -353,7 +353,8 @@ class Operative(pygame.sprite.Sprite, ABC):
         within_engagement_range = []
         for enemy_team in [team for team in self.team.gamestate.teams if team != self.team]:
             for op in enemy_team.operatives:
-                if utils.distance.between(self.rect.center if point == None else point, op.rect.center) < utils.distance.TRIANGLE + self.base_radius + op.base_radius:
+                if utils.distance.between(self.rect.center if point == None else point, op.rect.center) < utils.distance.TRIANGLE + self.base_radius + op.base_radius and \
+                        utils.line_of_sight.visible(source=self, target=op):
                     within_engagement_range.append(op)
 
         return within_engagement_range
@@ -405,6 +406,10 @@ class Operative(pygame.sprite.Sprite, ABC):
             for team in self.team.gamestate.teams:
                 for operative in team.operatives:
                     if operative == self:
+                        continue
+
+                    # No need to check against operatives we cannot see
+                    if not utils.line_of_sight.visible(source=self, target=operative):
                         continue
 
                     distance = utils.distance.between_line_and_point(
