@@ -17,6 +17,8 @@ Can also use `RETURN` while resolving attack dices in fights to automatically st
 
 During barricade deployment, rotate barricades using `E`, `Q` or `ARROW_LEFT`, `ARROW_RIGHT`.
 
+Blue terrain is `HEAVY` and `OBSCURING`, while green terrain is `LIGHT` and `TRAVERSABLE`.
+
 ## Core Rules
 
 - [x] Tools of War
@@ -65,9 +67,9 @@ During barricade deployment, rotate barricades using `E`, `Q` or `ARROW_LEFT`, `
         - [x] Traversable
         - [x] Insignificant
         - [x] Scalable
-        - [ ] Barricades
+        - [x] Barricades
         - [x] Vantage Point
-    - [ ] Moving Through Terrain
+    - [x] Moving Through Terrain
         - [x] Traverse
         - [ ] Jump
         - [ ] Climb
@@ -75,12 +77,12 @@ During barricade deployment, rotate barricades using `E`, `Q` or `ARROW_LEFT`, `
         - [x] Flying Over Terrain
     - [x] Example Boards
     - [x] Example Terrain Features
-- [ ] Ways to Play
-    - [ ] Open Play
+- [x] Ways to Play
+    - [x] Open Play
     - [ ] Matched Play
     - [ ] Narrative Play
 - [ ] Critical Operations Mission Pack
-    - [ ] 1.1 Loot and Salvage
+    - [x] 1.1 Loot and Salvage
     - [ ] 1.2 Consecration
     - [ ] 1.3 Awaken the Data-spirits
     - [ ] 2.1 Escalating Hostilities
