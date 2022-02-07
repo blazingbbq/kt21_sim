@@ -35,6 +35,8 @@ class Datacard:
         self.unique_actions = unique_actions
         self.keywords = keywords
 
+        self.current_wounds = self.physical_profile.wounds
+
         self.ui_element = game.ui.elements.UITextBox(html_text=self.datacard_text,
                                                      relative_rect=pygame.rect.Rect(
                                                          game.ui.layout.info_panel_flush_offset,
@@ -45,14 +47,14 @@ class Datacard:
                                                      manager=game.ui.manager,
                                                      visible=False,
                                                      )
-        # TODO: Set datacard's background color
-        # FIXME: Gets overwritten by the ui theme
-        self.ui_element.background_colour = DATACARD_BACKGROUND_COLOR
 
     @property
     def datacard_text(self):
         rendered_wounds: str = "{:<2}".format(
-            str(self.physical_profile.wounds))
+            str(self.current_wounds))
+        if self.current_wounds < self.physical_profile.wounds:
+            rendered_wounds = bold(with_color(rendered_wounds, 0xff0000))
+
         rendered_base: str = "{:<2}".format(
             int(self.physical_profile.base.to_mm())
         )
@@ -91,7 +93,11 @@ class Datacard:
 
         return text
 
+    def update(self):
+        self.ui_element.set_text(self.datacard_text)
+
     def show(self):
+        self.update()
         game.ui.replace_info_panel(self.ui_element)
 
 

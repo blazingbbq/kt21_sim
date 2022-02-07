@@ -5,7 +5,8 @@ import game.ui
 import game.clock
 import game.state
 
-MIN_HOVER_TIME_MS = 300  # Minimum time stationary before considering it a hover
+# Minimum time stationary before considering it a hover (in Milliseconds)
+MIN_HOVER_TIME_MS = 20
 
 
 class _InputState:

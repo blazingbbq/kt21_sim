@@ -58,7 +58,6 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.apl_modifier = 0
         self.order = Order.CONCEAL
         self.action_points = 0
-        self.wounds = self.datacard.physical_profile.wounds
         self.carried_objective: Objective = None
 
         # Status
@@ -138,11 +137,20 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.range_radius = None
 
     def deal_damage(self, num: int):
-        self.wounds -= num
+        self.wounds = self.wounds - num
         self.print(f"Suffered {num} wounds")
+        self.datacard.update()
 
     def deal_mortal_wounds(self, num: int):
         self.deal_damage(num)
+
+    @property
+    def wounds(self):
+        return self.datacard.current_wounds
+
+    @wounds.setter
+    def wounds(self, num: int):
+        self.datacard.current_wounds = num
 
     @property
     def injured(self):
