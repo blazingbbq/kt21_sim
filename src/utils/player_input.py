@@ -100,6 +100,7 @@ def select_from_list(relative_to: Tuple[int, int], items: Union[List[str], List[
     selection_list = game.ui.elements.UISelectionList(
         relative_rect=pygame.Rect(relative_to, list_dimensions),
         item_list=items,
+        starting_height=2,
         manager=game.ui.manager)
     # TODO: Position top-right if list is too low
 
@@ -121,7 +122,6 @@ def prompt_true_false(msg: str,
         manager=game.ui.manager,
         starting_layer_height=0,
         container=game.ui.layout.window_container,
-        # margins=game.ui.layout.default_margins,
     )
 
     # Prompt text

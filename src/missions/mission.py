@@ -6,7 +6,7 @@ import operatives.tyranids
 from state import GameState
 from state.team import *
 from operatives import *
-from game.console import print
+from game.console import print, tag
 import utils.dice
 
 MISSION_CONSOLE_NAME_COLOR = 0xffffff
@@ -42,7 +42,7 @@ class Mission(ABC):
 
     @property
     def console_name(self):
-        return bold(with_color("[" + self.name.upper() + "]", color=self.console_name_color))
+        return tag(self.name, self.console_name_color)
 
     def determine_killzone(self):
         # Determine killzone
@@ -120,6 +120,8 @@ class Mission(ABC):
             operatives.tyranids.Termagant(),
             operatives.tyranids.Genestealer(),
         )
+
+        # TODO: If team includes LEADER, add 2CP to pool
 
     def setup_barricades(self):
         # Starting with defender

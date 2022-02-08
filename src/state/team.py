@@ -5,7 +5,7 @@ import utils.player_input
 import utils.collision
 import game.ui
 
-TEAM_NAME_CONSOLE_COLOR = 0x1d4a81
+TEAM_NAME_CONSOLE_COLOR = 0x3f6ca3
 
 
 class Team:
@@ -26,13 +26,15 @@ class Team:
         self.has_initiative = False
         self.is_attacker = False
         self.operatives: list[Operative] = []
+        self.incapacitated_operatives: list[Operative] = []
+        self.total_operatives = 0
 
         # Team based callbacks
         self.on_initiative_roll: list[Callable[[int], int]] = []
 
     @property
     def console_name(self):
-        return bold(with_color("[" + self.name.upper() + "]", color=self.console_name_color))
+        return tag(self.name, color=self.console_name_color)
 
     def print(self, msg: str):
         print(self.console_name + " " + str(msg))
@@ -48,19 +50,32 @@ class Team:
         # TODO: Use the faction's name
         return "Team {}".format(self.team_id)
 
+    @property
+    def remaining_operatives(self):
+        return len(self.operatives)
+
     def create_ui(self):
         # TODO: What to do if there's more than 2 teams?
-        self.side_panel = game.ui.layout.left_panel if self.team_id % 2 == 0 else game.ui.layout.right_panel
-
-        self.faction_name_label = game.ui.elements.UILabel(
-            # NOTE: Width/height -1 => size to text
-            relative_rect=pygame.Rect(0, 0, -1, -1),
-            text=self.name,
-            manager=game.ui.manager,
-            container=self.side_panel)
+        self.side_panel = game.ui.layout.team1_panel if self.team_id % 2 == 0 else game.ui.layout.team2_panel
 
     def update_ui(self):
-        pass
+        text = ""
+
+        # Show team info
+        text += self.console_name + newline()
+        text += f"VP: {self.victory_points}    CP: {self.command_points}    Units: {self.remaining_operatives}/{self.total_operatives}" + newline()
+
+        # Display operative statuses
+        if self.total_operatives > 0:
+            text += bold("Operatives:") + newline()
+            for operative in self.operatives:
+                text += "- " + operative.oneline_description + newline()
+            for operative in self.incapacitated_operatives:
+                text += with_color("x " + operative.oneline_description,
+                                   color=0xff0000) + newline()
+
+        # Set panel text
+        self.side_panel.set_text(text)
 
     def redraw(self):
         self.update_ui()
@@ -76,6 +91,7 @@ class Team:
     def add_operatives(self, *operatives: Operative):
         for operative in operatives:
             self.operatives.append(operative)
+            self.total_operatives += 1
             operative.team = self
             operative.on_added_to_team()
 

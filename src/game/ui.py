@@ -85,6 +85,25 @@ class Layout:
                                                                                  manager=game.ui.manager,
                                                                                  )
 
+        # Team 1 info panel
+        team_panel_vertical_padding = self.default_padding
+        team1_panel_tect = pygame.Rect(
+            0, 0, left_panel_inner_rect.width, left_panel_inner_rect.height - info_panel_rect.height - team_panel_vertical_padding)
+        self.team1_panel: pygame_gui.elements.UITextBox = game.ui.elements.UITextBox(html_text=f"",
+                                                                                     relative_rect=team1_panel_tect,
+                                                                                     container=self.left_panel,
+                                                                                     manager=game.ui.manager,
+                                                                                     )
+
+        # Team 2 info panel
+        team2_panel_tect = pygame.Rect(
+            0, 0, right_panel_inner_rect.width, right_panel_inner_rect.height - console_rect.height - team_panel_vertical_padding)
+        self.team2_panel: pygame_gui.elements.UITextBox = game.ui.elements.UITextBox(html_text=f"",
+                                                                                     relative_rect=team2_panel_tect,
+                                                                                     container=self.right_panel,
+                                                                                     manager=game.ui.manager,
+                                                                                     )
+
     @property
     def side_panel_width(self):
         gameboard_width = utils.distance.from_inch(

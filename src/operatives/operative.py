@@ -13,7 +13,7 @@ import utils.distance
 import utils.collision
 import utils.line_of_sight
 import utils.decorator
-from game.console import bold, print, with_color
+from game.console import bold, print, tag, with_color
 
 ENGAGEMENT_RANGE_COLOR = 0x242726
 ENGAGEMENT_RANGE_OUTLINE_WIDTH = 1
@@ -150,11 +150,11 @@ class Operative(pygame.sprite.Sprite, ABC):
 
     @wounds.setter
     def wounds(self, num: int):
-        self.datacard.current_wounds = num
+        self.datacard.current_wounds = max(0, num)
 
     @property
     def injured(self):
-        return self.wounds < self.datacard.physical_profile.wounds // 2
+        return self.wounds < self.datacard.physical_profile.wounds / 2
 
     @property
     def incapacitated(self):
@@ -172,6 +172,7 @@ class Operative(pygame.sprite.Sprite, ABC):
 
             # Remove operative from team
             self.team.operatives.remove(self)
+            self.team.incapacitated_operatives.append(self)
 
     @property
     def order(self):
@@ -187,8 +188,17 @@ class Operative(pygame.sprite.Sprite, ABC):
         self.rect.center = center
 
     @property
+    def oneline_description(self):
+        if self.incapacitated:
+            return f"{self.console_name}: INCAPACITATED"
+
+        injured_text = "(INJURED) " if self.injured else ""
+        apl_text = f"APL{self.apl_modifier} " if self.apl_modifier != 0 else ""
+        return f"{self.console_name}: W{self.wounds} {injured_text}{apl_text}"
+
+    @property
     def console_name(self):
-        return bold(with_color("[" + self.datacard.operative_type.upper() + "]", color=self.console_name_color))
+        return tag(self.datacard.operative_type, color=self.console_name_color)
 
     def print(self, msg: str):
         print(self.console_name + " " + str(msg))
@@ -306,7 +316,7 @@ class Operative(pygame.sprite.Sprite, ABC):
                 self.actions_taken.append(selected_action)
 
         # APL modifier reset at the end of the current/next activation
-        self.APL_modifier = 0
+        self.apl_modifier = 0
         self.ready = False
         self.free_actions = []
 

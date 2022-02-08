@@ -80,3 +80,7 @@ def print_err(str: str):
 
 def keyname(keyname: str):
     return bold(with_background(keyname.upper(), KEYNAME_BACKGROUND_COLOR))
+
+
+def tag(str: str, color):
+    return bold(with_color(str="[" + str.upper() + "]", color=color))
