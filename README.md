@@ -41,7 +41,7 @@ Blue terrain is `HEAVY` and `OBSCURING`, while green terrain is `LIGHT` and `TRA
     - [ ] Target Reveal
 - [x] Firefight Phase
     - [x] Perform Actions
-    - [ ] Overwatch
+    - [x] Overwatch
     - [x] Actions
         - [x] Normal Move
         - [x] Fly
@@ -49,7 +49,7 @@ Blue terrain is `HEAVY` and `OBSCURING`, while green terrain is `LIGHT` and `TRA
         - [x] Fall Back
         - [x] Dash
         - [x] Pass
-        - [ ] Overwatch
+        - [x] Overwatch
         - [x] Pick Up
         - [x] Capture Objective
         - [x] Shoot

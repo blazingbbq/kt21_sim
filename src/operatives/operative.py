@@ -63,6 +63,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         # Status
         self.deployed = False
         self.ready = False
+        self.overwatched = False
         self.visible = False
         self.engagement_range_visible = False
 
@@ -97,6 +98,7 @@ class Operative(pygame.sprite.Sprite, ABC):
 
     def ready_up(self):
         self.ready = True
+        self.overwatched = False
 
     def show(self):
         self.visible = True
@@ -260,7 +262,10 @@ class Operative(pygame.sprite.Sprite, ABC):
 
     @property
     def bs_ws_modifier(self):
-        return -1 if self.injured else 0
+        overwatch_modifier = -1 if self.overwatched else 0
+        injured_modifier = -1 if self.injured else 0
+
+        return overwatch_modifier + injured_modifier
 
     def combat_support_against(self, defender):
         from operatives import Operative
@@ -351,6 +356,10 @@ class Operative(pygame.sprite.Sprite, ABC):
             ga_operative.activate(activation_num=activation_num)
 
         ### End Operative.activate ###
+
+    def overwatch(self):
+        self.overwatched = True
+        return self.perform_shoot()
 
     def select_order(self):
         orders = {"Engage": Order.ENGAGE, "Conceal": Order.CONCEAL}

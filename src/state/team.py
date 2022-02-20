@@ -1,9 +1,12 @@
 from typing import Callable
+
+from pygame import K_ESCAPE
 from board.dropzone import DropZone
 from operatives import *
 import utils.player_input
 import utils.collision
 import game.ui
+import action.condition
 
 TEAM_NAME_CONSOLE_COLOR = 0x3f6ca3
 
@@ -129,6 +132,56 @@ class Team:
         # TODO: Prompt player to reveal Tac Ops
         return False
 
+    def perform_overwatch(self):
+        enemy_ready_operatives = 0
+        for team in self.gamestate.teams:
+            if team == self:
+                continue
+            enemy_ready_operatives += sum(
+                1 for op in team.operatives if op.ready)
+
+        # Cannot overwatch if the enemy does not have any remaining ready operatives
+        if enemy_ready_operatives <= 0:
+            return False
+
+        # Get overwatchable operatives
+        overwatch_operatives: list[Operative] = [
+            op for op in self.operatives if (not op.ready and
+                                             not op.overwatched and
+                                             op.order == Order.ENGAGE and
+                                             action.condition.not_within_engagement_range_of_enemy(None, op) and
+                                             action.condition.has_ranged_weapon(None, op))]
+        if len(overwatch_operatives) <= 0:
+            # Nothing left to overwatch
+            return False
+
+        # Prompt player to select operative to overwatch
+        self.print("Select an operative to overwatch")
+
+        # Get operative selection, highlight ready operatives
+        for op in overwatch_operatives:
+            op.highlight(self.ready_operative_highlight_color)
+
+        active_operative = None
+        for click_loc in utils.player_input.wait_for_click():
+            if utils.player_input.key_pressed(K_ESCAPE):
+                break
+            if click_loc != None:
+                active_operative = utils.collision.get_selected_sprite(
+                    click_loc, overwatch_operatives)
+                if active_operative != None:
+                    break
+            self.gamestate.redraw()
+
+        [op.unhighlight() for op in overwatch_operatives]
+        self.gamestate.redraw()
+
+        # Overwatch operative
+        if active_operative:
+            active_operative.overwatch()
+
+        return False
+
     def activate_operative(self):
         """Prompt player to activate operative. Includes overwatch actions.
 
@@ -139,10 +192,8 @@ class Team:
             op for op in self.operatives if op.ready]
 
         if len(ready_operatives) <= 0:
-            # TODO: Check for overwatch
-
-            # Nothing left to activate
-            return False
+            # Nothing left to activate, try to overwatch
+            return self.perform_overwatch()
 
         # Get operative selection, highlight ready operatives
         for op in ready_operatives:

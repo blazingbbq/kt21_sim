@@ -95,7 +95,8 @@ class Weapon(ABC):
         # TODO: Prompt rerolls for special rules
         # TODO: Prompt rerolls from abilities or team mechanics
 
-        combat_support = attacker.combat_support_against(defender)
+        combat_support = attacker.combat_support_against(
+            defender) if fighting else 0
         # Sort normal and crit hits
         for roll in rolls:
             # Result of 1 is always a failed hit, else check BS
