@@ -3,6 +3,7 @@ from enum import Enum
 import pygame
 from abc import ABC
 from board.objectives.objective import Objective
+import math
 
 from board.terrain.traits import TerrainTrait
 from game.preload import WHITE_COLORKEY
@@ -30,11 +31,13 @@ VALID_TARGET_HIGHLIGHT_COLOR = 0x00ff00
 
 OPERATIVE_NAME_CONSOLE_COLOR = 0xc54c21
 
-ORDER_READY_COLOR = 0xc54c21
-ORDER_ACTIVATED_COLOR = 0x282d2f
+ICON_ORDER_READY_COLOR = 0xc54c21
+ICON_ORDER_ACTIVATED_COLOR = 0x282d2f
+ICON_INJURED_COLOR = 0x282d2f
 
-ICON_OFFSET_PERCENT = 15
+ICON_OFFSET_PERCENT = 5
 ORDER_ICON_RELATIVE_POS = (1, 1)
+INJURED_ICON_RELATIVE_POS = (1, -1)
 
 TRAVERSAL_COST = utils.distance.CIRCLE
 
@@ -99,16 +102,21 @@ class Operative(pygame.sprite.Sprite, ABC):
                           self.base_radius.to_screen_size())
         self.engage_icon_ready, _ = game.preload.image(game.icon.ENGAGE_ORDER,
                                                        colorkey=WHITE_COLORKEY,
-                                                       color=ORDER_READY_COLOR,
+                                                       color=ICON_ORDER_READY_COLOR,
                                                        scale_to=self.base_radius.to_screen_size())
         self.engage_icon_activated = game.preload.recolor(image=self.engage_icon_ready,
-                                                          color=ORDER_ACTIVATED_COLOR)
+                                                          color=ICON_ORDER_ACTIVATED_COLOR)
         self.conceal_icon_ready, _ = game.preload.image(game.icon.CONCEAL_ORDER,
                                                         colorkey=WHITE_COLORKEY,
-                                                        color=ORDER_READY_COLOR,
+                                                        color=ICON_ORDER_READY_COLOR,
                                                         scale_to=self.base_radius.to_screen_size())
         self.conceal_icon_activated = game.preload.recolor(image=self.conceal_icon_ready,
-                                                           color=ORDER_ACTIVATED_COLOR)
+                                                           color=ICON_ORDER_ACTIVATED_COLOR)
+
+        self.injured_icon, _ = game.preload.image(game.icon.INJURED,
+                                                  colorkey=WHITE_COLORKEY,
+                                                  color=ICON_INJURED_COLOR,
+                                                  scale_to=self.base_radius.to_screen_size())
 
     def on_added_to_team(self):
         """Callback for when this operative is added to a team. Used to register team-based callbacks and properties
@@ -234,9 +242,11 @@ class Operative(pygame.sprite.Sprite, ABC):
         return self.datacard.physical_profile.base / 2
 
     def display_icon(self, icon: pygame.Surface, relative_pos: Tuple[int, int]):
+        x_mod = math.sqrt(1 - 0.5 * abs(relative_pos[1]))
+        y_mod = math.sqrt(1 - 0.5 * abs(relative_pos[0]))
         pygame.display.get_surface().blit(icon,
-                                          (self.rect.center[0] - self.icon_size[0] / 2 + (self.base_radius.to_screen_size() * (1 + ICON_OFFSET_PERCENT / 100.0)) * relative_pos[0],
-                                           self.rect.center[1] - self.icon_size[1] / 2 + (self.base_radius.to_screen_size() * (1 + ICON_OFFSET_PERCENT / 100.0)) * relative_pos[1]))
+                                          (self.rect.center[0] - self.icon_size[0] / 2 + (self.base_radius.to_screen_size() * (1 + ICON_OFFSET_PERCENT / 100.0)) * x_mod * relative_pos[0] + self.icon_size[0] / 2 * relative_pos[0] * x_mod,
+                                           self.rect.center[1] - self.icon_size[1] / 2 + (self.base_radius.to_screen_size() * (1 + ICON_OFFSET_PERCENT / 100.0)) * y_mod * relative_pos[1] + self.icon_size[1] / 2 * relative_pos[1] * y_mod))
 
     def show_datacard(self):
         self.datacard.show()
@@ -262,8 +272,12 @@ class Operative(pygame.sprite.Sprite, ABC):
             pygame.draw.circle(screen, WEAPON_RANGE_COLOR, self.rect.center, self.range_radius.to_screen_size(
             ) + self.datacard.physical_profile.base.to_screen_size() / 2, WEAPON_RANGE_OUTLINE_WIDTH)
 
-        # TODO: Injured icon
+        # Display injured icon
+        if self.injured:
+            self.display_icon(icon=self.injured_icon,
+                              relative_pos=INJURED_ICON_RELATIVE_POS)
 
+        # Display order icon
         if self.ready:
             if self.order == Order.ENGAGE:
                 self.display_icon(icon=self.engage_icon_ready,
