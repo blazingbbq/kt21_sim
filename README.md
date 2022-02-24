@@ -151,3 +151,7 @@ Blue terrain is `HEAVY` and `OBSCURING`, while green terrain is `LIGHT` and `TRA
 - [ ] Add narrative play mode
     - [ ] Exp, battle honours/scars, rare equipment, assets, requisitions
     - [ ] Progression trees for character archetype and faction specific
+
+## Attribution
+
+See [assets/attributions.md](assets/attributions.md) for attributions.
