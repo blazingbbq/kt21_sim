@@ -5,6 +5,7 @@ from abc import ABC
 from board.objectives.objective import Objective
 
 from board.terrain.traits import TerrainTrait
+from game.preload import WHITE_COLORKEY
 from .datacard import *
 from action import Action
 from utils.distance.ruler import Ruler
@@ -14,6 +15,7 @@ import utils.collision
 import utils.line_of_sight
 import utils.decorator
 from game.console import bold, print, tag, with_color
+import game.icon
 
 ENGAGEMENT_RANGE_COLOR = 0x242726
 ENGAGEMENT_RANGE_OUTLINE_WIDTH = 1
@@ -27,6 +29,12 @@ INVALID_MOVE_RULER_COLOR = 0xff0000
 VALID_TARGET_HIGHLIGHT_COLOR = 0x00ff00
 
 OPERATIVE_NAME_CONSOLE_COLOR = 0xc54c21
+
+ORDER_READY_COLOR = 0xc54c21
+ORDER_ACTIVATED_COLOR = 0x282d2f
+
+ICON_OFFSET_PERCENT = 15
+ORDER_ICON_RELATIVE_POS = (1, 1)
 
 TRAVERSAL_COST = utils.distance.CIRCLE
 
@@ -85,6 +93,22 @@ class Operative(pygame.sprite.Sprite, ABC):
         import action.universal
         self.actions.extend(action.universal.universal_actions)
         self.actions.extend(self.datacard.unique_actions)
+
+        # Icons
+        self.icon_size = (self.base_radius.to_screen_size(),
+                          self.base_radius.to_screen_size())
+        self.engage_icon_ready, _ = game.preload.image(game.icon.ENGAGE_ORDER,
+                                                       colorkey=WHITE_COLORKEY,
+                                                       color=ORDER_READY_COLOR,
+                                                       scale_to=self.base_radius.to_screen_size())
+        self.engage_icon_activated = game.preload.recolor(image=self.engage_icon_ready,
+                                                          color=ORDER_ACTIVATED_COLOR)
+        self.conceal_icon_ready, _ = game.preload.image(game.icon.CONCEAL_ORDER,
+                                                        colorkey=WHITE_COLORKEY,
+                                                        color=ORDER_READY_COLOR,
+                                                        scale_to=self.base_radius.to_screen_size())
+        self.conceal_icon_activated = game.preload.recolor(image=self.conceal_icon_ready,
+                                                           color=ORDER_ACTIVATED_COLOR)
 
     def on_added_to_team(self):
         """Callback for when this operative is added to a team. Used to register team-based callbacks and properties
@@ -209,6 +233,11 @@ class Operative(pygame.sprite.Sprite, ABC):
     def base_radius(self):
         return self.datacard.physical_profile.base / 2
 
+    def display_icon(self, icon: pygame.Surface, relative_pos: Tuple[int, int]):
+        pygame.display.get_surface().blit(icon,
+                                          (self.rect.center[0] - self.icon_size[0] / 2 + (self.base_radius.to_screen_size() * (1 + ICON_OFFSET_PERCENT / 100.0)) * relative_pos[0],
+                                           self.rect.center[1] - self.icon_size[1] / 2 + (self.base_radius.to_screen_size() * (1 + ICON_OFFSET_PERCENT / 100.0)) * relative_pos[1]))
+
     def show_datacard(self):
         self.datacard.show()
 
@@ -233,8 +262,22 @@ class Operative(pygame.sprite.Sprite, ABC):
             pygame.draw.circle(screen, WEAPON_RANGE_COLOR, self.rect.center, self.range_radius.to_screen_size(
             ) + self.datacard.physical_profile.base.to_screen_size() / 2, WEAPON_RANGE_OUTLINE_WIDTH)
 
-        # TODO: Display icon indicating current order
         # TODO: Injured icon
+
+        if self.ready:
+            if self.order == Order.ENGAGE:
+                self.display_icon(icon=self.engage_icon_ready,
+                                  relative_pos=ORDER_ICON_RELATIVE_POS)
+            else:
+                self.display_icon(icon=self.conceal_icon_ready,
+                                  relative_pos=ORDER_ICON_RELATIVE_POS)
+        else:
+            if self.order == Order.ENGAGE:
+                self.display_icon(icon=self.engage_icon_activated,
+                                  relative_pos=ORDER_ICON_RELATIVE_POS)
+            else:
+                self.display_icon(icon=self.conceal_icon_activated,
+                                  relative_pos=ORDER_ICON_RELATIVE_POS)
 
         self.render_group.draw(screen)
         if self.ghost_pos != None:
