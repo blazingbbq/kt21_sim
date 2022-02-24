@@ -36,7 +36,7 @@ class Weapon(ABC):
                  damage: Tuple[int, int],  # Damage tuple: (Normal, Crit)
                  special_rules: List[SpecialRule] = [],
                  # TODO: Add crit callbacks
-                 critical_hit_rules: List[int] = [],
+                 critical_hit_rules: List[CritRule] = [],
                  ):
         self.name = name
         self.attacks = attacks
