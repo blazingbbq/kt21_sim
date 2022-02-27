@@ -1,5 +1,6 @@
 import random
 from typing import Union
+import game.console
 
 
 class Dice:
@@ -14,10 +15,34 @@ class Dice:
         return not self.rerolled
 
     def reroll(self):
+        # Any dice can only be rerolled once
         if self.rerolled == True:
             return
         self.rerolled = True
+        old_val = self.value
         self.value = random.randint(1, 6)
+
+        game.console.debug(f"Rerolled from {old_val} -> {self.value}")
+
+    def reroll_lt(self, val):
+        if self.value < val:
+            self.reroll()
+
+    def reroll_lte(self, val):
+        if self.value <= val:
+            self.reroll()
+
+    def reroll_gt(self, val):
+        if self.value > val:
+            self.reroll()
+
+    def reroll_gte(self, val):
+        if self.value >= val:
+            self.reroll()
+
+    def reroll_eq(self, val):
+        if self.value == val:
+            self.reroll()
 
     def __gt__(self, other):
         if isinstance(other, Dice):

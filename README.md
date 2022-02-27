@@ -91,6 +91,33 @@ Blue terrain is `HEAVY` and `OBSCURING`, while green terrain is `LIGHT` and `TRA
     - [ ] 3.1 Secure Archeotech
     - [ ] 3.2 Duel of Wits
     - [ ] 3.3 Master the Terminals
+- [ ] Critical Hit Rules, Special Rules and Abilities
+    - [x] APx
+    - [ ] Barrage
+    - [ ] Balanced
+    - [ ] Blast x
+    - [ ] Brutal
+    - [x] Ceaseless
+    - [ ] Fusillade
+    - [ ] Heavy
+    - [x] Hot
+    - [ ] Indirect
+    - [ ] Invulnerable Save x+
+    - [x] Lethal x
+    - [ ] Limited
+    - [ ] MWx
+    - [ ] No Cover
+    - [ ] Psychic Action
+    - [ ] Px
+    - [ ] Reap x
+    - [ ] Relentless
+    - [x] Rending
+    - [x] Rng x
+    - [ ] Silent
+    - [ ] Splash x
+    - [ ] Stun
+    - [ ] Torrent x
+    - [ ] Unwieldy
 
 ## Factions
 

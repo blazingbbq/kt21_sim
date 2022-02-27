@@ -1,5 +1,3 @@
-
-
 from abc import ABC
 from enum import Enum
 from tokenize import Special
@@ -9,23 +7,56 @@ import utils.distance
 import game.ui
 import game.state
 import pygame
+import game.console
 
 NORMAL_DICE_SYMBOL = "·"
 CRIT_DICE_SYMBOL = "!"
 
 
 class SpecialRule(Enum):
-    RNG_6 = 1
-    LETHAL_5 = 2
-    HOT = 3
-    AP_1 = 4
-    AP_2 = 5
-    CEASELESS = 6  # TODO: Implement
-    RELENTLESS = 7  # TODO: Implement
-
-
-class CritRule(Enum):
-    RENDING = 1  # TODO: Implement
+    AP_1 = 1
+    AP_2 = 2
+    # 3-6 reserved for higher AP rules
+    BARRAGE = 3  # TODO: Implement
+    BALANCED = 4  # TODO: Implement
+    BLAST_2 = 5  # TODO: Implement
+    # 6-7 reserved for higher blast radiuses
+    BRUTAL = 8  # TODO: Implement
+    CEASELESS = 9
+    FUSILLADE = 10  # TODO: Implement
+    HEAVY = 11  # TODO: Implement
+    HOT = 12
+    INDIRECT = 13  # TODO: Implement
+    INVULNERABLE_SAVE_2 = 14  # TODO: Implement
+    INVULNERABLE_SAVE_3 = 15  # TODO: Implement
+    INVULNERABLE_SAVE_4 = 16  # TODO: Implement
+    INVULNERABLE_SAVE_5 = 17  # TODO: Implement
+    INVULNERABLE_SAVE_6 = 18  # TODO: Implement
+    # 19-21 reserved for higher lethal rules
+    LETHAL_5 = 22
+    LIMITED = 23  # TODO: Implement
+    MW_1 = 24  # TODO: Implement
+    MW_2 = 25  # TODO: Implement
+    MW_3 = 26  # TODO: Implement
+    # 27-29 reserved for higher MW rules
+    NO_COVER = 30  # TODO: Implement
+    P_1 = 31  # TODO: Implement
+    P_2 = 32  # TODO: Implement
+    # 33-36 reserved for higher piercing rules
+    REAP_1 = 37  # TODO: Implement
+    # 38-39 reserved for higher reap rules
+    RELENTLESS = 40  # TODO: Implement
+    RENDING = 41
+    # 42-43 reserved for shorter range rules
+    RNG_6 = 44
+    # 45-46 reserved for longer range rules
+    SILENT = 47  # TODO: Implement
+    SPLASH_1 = 48  # TODO: Implement
+    # 49-50 reserved for higher splash rules
+    STUN = 51  # TODO: Implement
+    TORRENT_2 = 52  # TODO: Implement
+    # 53-54 reserved for higher torrent rules
+    UNWIELDY = 53  # TODO: Implement
 
 
 class Weapon(ABC):
@@ -35,8 +66,7 @@ class Weapon(ABC):
                  skill: int,  # Either BallisticSkill / WeaponSkill
                  damage: Tuple[int, int],  # Damage tuple: (Normal, Crit)
                  special_rules: List[SpecialRule] = [],
-                 # TODO: Add crit callbacks
-                 critical_hit_rules: List[CritRule] = [],
+                 critical_hit_rules: List[SpecialRule] = [],
                  ):
         self.name = name
         self.attacks = attacks
@@ -75,34 +105,64 @@ class Weapon(ABC):
     def critical_damage(self):
         return self.damage[1]
 
+    def handle_special_rules(self, rolls: utils.dice.Dice, attacker, defender, fighting: bool = False, overwatching: bool = False):
+        # Sort normal and critical hits
+        normal_hits, critical_hits, failed_hits = self.sort_roll_results(rolls=rolls,
+                                                                         attacker=attacker,
+                                                                         defender=defender,
+                                                                         fighting=fighting,
+                                                                         overwatching=overwatching)
+
+        # Dice reroll rules
+        # TODO: Rerolls from abilities or team mechanics
+        if SpecialRule.CEASELESS in self.special_rules:
+            for roll in failed_hits:
+                roll.reroll_eq(1)
+
+        # Resort hits
+        normal_hits, critical_hits, failed_hits = self.sort_roll_results(rolls=normal_hits + critical_hits + failed_hits,
+                                                                         attacker=attacker,
+                                                                         defender=defender,
+                                                                         fighting=fighting,
+                                                                         overwatching=overwatching)
+
+        # Critical hit rules
+        if len(critical_hits) > 0:
+
+            if SpecialRule.RENDING in self.critical_hit_rules:
+                if len(normal_hits) > 0:
+                    game.console.debug("Rending")
+                    normal_hits.pop()
+                    critical_hits.append(utils.dice.Dice(6))
+
+        # Additional hit rules (Blast, Reap, etc.)
+
+        return normal_hits + critical_hits + failed_hits
+
     # Shooting
 
-    def discard_attack_dice(self, roll: utils.dice.Dice, op):
+    def discard_attack_dice(self, roll: utils.dice.Dice, attacker):
         from operatives import Operative
-        attacker: Operative = op
+        attacker: Operative = attacker
 
         if SpecialRule.HOT in self.special_rules:
             attacker.deal_mortal_wounds(3)
 
-    def roll_attack_dice(self, attacker, defender, fighting: bool = False) -> Tuple[List[utils.dice.Dice], List[utils.dice.Dice]]:
+    def sort_roll_results(self, rolls, attacker, defender, fighting: bool = False, overwatching: bool = False):
         from operatives import Operative
         attacker: Operative = attacker
         defender: Operative = defender
-        normal_hits, critical_hits = [], []
-
-        rolls = [utils.dice.roll() for _ in range(self.attacks)]
-
-        # TODO: Prompt rerolls for special rules
-        # TODO: Prompt rerolls from abilities or team mechanics
 
         combat_support = attacker.combat_support_against(
             defender) if fighting else 0
-        # Sort normal and crit hits
+        overwatch_modifier = attacker.overwatch_modifier if overwatching else 0
+
+        normal_hits, critical_hits, failed_hits = [], [], []
         for roll in rolls:
             # Result of 1 is always a failed hit, else check BS
             # Result of 6 is always a successful hit
-            if (roll == 1 or roll < self.skill + attacker.bs_ws_modifier + combat_support) and roll != 6:
-                self.discard_attack_dice(roll, attacker)
+            if (roll == 1 or roll < self.skill + attacker.bs_ws_modifier + overwatch_modifier + combat_support) and roll != 6:
+                failed_hits.append(roll)
                 continue
 
             # Successful hit
@@ -110,6 +170,29 @@ class Weapon(ABC):
                 critical_hits.append(roll)
                 continue
             normal_hits.append(roll)
+
+        return normal_hits, critical_hits, failed_hits
+
+    def roll_attack_dice(self, attacker, defender, fighting: bool = False, overwatching: bool = False) -> Tuple[List[utils.dice.Dice], List[utils.dice.Dice]]:
+        rolls = [utils.dice.roll() for _ in range(self.attacks)]
+
+        # Handle special rules
+        rolls = self.handle_special_rules(rolls=rolls,
+                                          attacker=attacker,
+                                          defender=defender,
+                                          fighting=fighting,
+                                          overwatching=overwatching)
+
+        # Sort normal and critical hits
+        normal_hits, critical_hits, failed_hits = self.sort_roll_results(rolls=rolls,
+                                                                         attacker=attacker,
+                                                                         defender=defender,
+                                                                         fighting=fighting,
+                                                                         overwatching=overwatching)
+
+        # Discard failed rolls
+        for roll in failed_hits:
+            self.discard_attack_dice(roll, attacker)
 
         return normal_hits, critical_hits
 
@@ -121,6 +204,7 @@ class Weapon(ABC):
 
         # Can retain 1 successful normal save if in cover
         retain_cover_dice = False
+        # TODO: Include a Barrage option to in_cover util
         if utils.line_of_sight.in_cover(source=attacker, target=defender):
             retain_cover_dice = utils.player_input.prompt_true_false(
                 msg=f"Retain one dice as a successful normal save?")
@@ -261,7 +345,7 @@ class Weapon(ABC):
 
             game.state.redraw()
 
-    def shoot(self, attacker, defender):
+    def shoot(self, attacker, defender, overwatching=False):
         from operatives import Operative
         attacker: Operative = attacker
         defender: Operative = defender
@@ -270,6 +354,7 @@ class Weapon(ABC):
         attack_dice = self.roll_attack_dice(
             attacker=attacker,
             defender=defender,
+            overwatching=overwatching,
         )
 
         # Roll defence dice

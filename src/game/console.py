@@ -1,10 +1,13 @@
 from typing import Union
 import game.ui
+import config
 
 # Theming
 KEYNAME_BACKGROUND_COLOR = "#666666"
 ERROR_MESSAGE_BACKGROUND_COLOR = 0xff0000
 ERROR_MESSAGE_COLOR = 0xff0000
+DEBUG_MESSAGE_BACKGROUND_COLOR = 0xffff00
+DEBUG_MESSAGE_COLOR = 0xffff00
 
 
 def preload_fonts():
@@ -75,6 +78,11 @@ def print_err(str: str):
     print(bold(with_background("ERROR:", ERROR_MESSAGE_BACKGROUND_COLOR)
                ) + " " + with_color(str, ERROR_MESSAGE_COLOR))
 
+
+def debug(str: str):
+    if config.DEBUG:
+        print(bold(with_background("DEBUG:", DEBUG_MESSAGE_BACKGROUND_COLOR)
+                   ) + " " + with_color(str, DEBUG_MESSAGE_COLOR))
 
 # Misc console printing utils
 

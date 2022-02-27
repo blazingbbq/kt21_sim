@@ -1,4 +1,4 @@
-from ..weapon import CritRule, SpecialRule, Weapon
+from ..weapon import SpecialRule, Weapon
 
 
 class DoubleRendingClaws(Weapon):
@@ -9,5 +9,5 @@ class DoubleRendingClaws(Weapon):
             skill=3,
             damage=(4, 5),
             special_rules=[SpecialRule.RELENTLESS],
-            critical_hit_rules=[CritRule.RENDING],
+            critical_hit_rules=[SpecialRule.RENDING],
         )

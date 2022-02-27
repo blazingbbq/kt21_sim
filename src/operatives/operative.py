@@ -319,10 +319,12 @@ class Operative(pygame.sprite.Sprite, ABC):
 
     @property
     def bs_ws_modifier(self):
-        overwatch_modifier = -1 if self.overwatched else 0
-        injured_modifier = -1 if self.injured else 0
+        injured_modifier = 1 if self.injured else 0
+        return injured_modifier
 
-        return overwatch_modifier + injured_modifier
+    @property
+    def overwatch_modifier(self):
+        return 1
 
     def combat_support_against(self, defender):
         from operatives import Operative
@@ -335,7 +337,7 @@ class Operative(pygame.sprite.Sprite, ABC):
 
             engaged_with = ally.enemies_within_engagement_range()
             if (len(engaged_with) == 1) and (defender in engaged_with):
-                combat_support += 1
+                combat_support -= 1
 
         return combat_support
 
@@ -701,6 +703,7 @@ class Operative(pygame.sprite.Sprite, ABC):
         successful_shooting = selected_weapon.shoot(
             attacker=self,
             defender=defender,
+            overwatching=self.overwatched,
         )
 
         return successful_shooting

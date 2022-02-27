@@ -6,8 +6,6 @@ import game.screen
 import game.state
 from game.console import keyname, print, bold, italic, with_background, with_color
 
-DEBUG = True
-
 
 class KT21Sim:
     def start():
