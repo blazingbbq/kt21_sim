@@ -35,10 +35,11 @@ class SpecialRule(Enum):
     # 19-21 reserved for higher lethal rules
     LETHAL_5 = 22
     LIMITED = 23  # TODO: Implement
-    MW_1 = 24  # TODO: Implement
-    MW_2 = 25  # TODO: Implement
-    MW_3 = 26  # TODO: Implement
-    # 27-29 reserved for higher MW rules
+    MW_1 = 24
+    MW_2 = 25
+    MW_3 = 26
+    MW_4 = 27
+    # 28-29 reserved for higher MW rules
     NO_COVER = 30  # TODO: Implement
     P_1 = 31  # TODO: Implement
     P_2 = 32  # TODO: Implement
@@ -53,7 +54,7 @@ class SpecialRule(Enum):
     SILENT = 47  # TODO: Implement
     SPLASH_1 = 48  # TODO: Implement
     # 49-50 reserved for higher splash rules
-    STUN = 51  # TODO: Implement
+    STUN = 51
     TORRENT_2 = 52  # TODO: Implement
     # 53-54 reserved for higher torrent rules
     UNWIELDY = 53  # TODO: Implement
@@ -105,7 +106,24 @@ class Weapon(ABC):
     def critical_damage(self):
         return self.damage[1]
 
+    @property
+    def mw(self):
+        if SpecialRule.MW_1 in self.critical_hit_rules:
+            return 1
+        if SpecialRule.MW_2 in self.critical_hit_rules:
+            return 2
+        if SpecialRule.MW_3 in self.critical_hit_rules:
+            return 3
+        if SpecialRule.MW_4 in self.critical_hit_rules:
+            return 4
+
+        return 0
+
     def handle_special_rules(self, rolls: utils.dice.Dice, attacker, defender, fighting: bool = False, overwatching: bool = False):
+        from operatives import Operative
+        attacker: Operative = attacker
+        defender: Operative = defender
+
         # Sort normal and critical hits
         normal_hits, critical_hits, failed_hits = self.sort_roll_results(rolls=rolls,
                                                                          attacker=attacker,
@@ -134,6 +152,14 @@ class Weapon(ABC):
                     game.console.debug("Rending")
                     normal_hits.pop()
                     critical_hits.append(utils.dice.Dice(6))
+
+            mw = self.mw
+            if mw:
+                defender.deal_mortal_wounds(mw * len(critical_hits))
+
+            # Stun is handled differently for shooting vs. fighting
+            if SpecialRule.STUN in self.critical_hit_rules and not fighting:
+                defender.apl_modifier -= 1
 
         # Additional hit rules (Blast, Reap, etc.)
 
@@ -472,6 +498,10 @@ class Weapon(ABC):
 
         # Repeat until one operative is incapacitated
         resolve_for = None
+        stun_count = {
+            attacker: 0,
+            defender: 0,
+        }
         while not attacker.incapacitated and not defender.incapacitated:
             # Starting with the attacker, each player alternates resolving one of their successful hits.
             resolve_for = attacker if resolve_for != attacker else defender
@@ -570,6 +600,24 @@ class Weapon(ABC):
                 if critical_hit:
                     # If the attack dice they select is a critical hit, inflict damage equal to their selected weapon’s Critical Damage.
                     receiver.deal_damage(resolving_weapon.critical_damage)
+
+                    # Handle Stun rule
+                    if SpecialRule.STUN in resolving_weapon.critical_hit_rules:
+                        if stun_count[resolve_for] == 0:
+                            # First stun removes a normal hit from the opponent
+                            normal_hit = next((hit for hit in other_dice_list._raw_item_list if hit.startswith(
+                                NORMAL_DICE_SYMBOL)), None)
+                            if normal_hit != None:
+                                other_dice_list.enable()
+                                other_dice_list._raw_item_list.remove(
+                                    normal_hit)
+                                other_dice_list.set_item_list(
+                                    other_dice_list._raw_item_list)
+                            other_dice_list.disable()
+                        elif stun_count[resolve_for] == 1:
+                            # Second stun reduces target's APL by 1
+                            receiver.apl_modifier -= 1
+                        stun_count[resolve_for] += 1
                 else:
                     # If the attack dice they select is a normal hit, inflict damage equal to their selected weapon’s Normal Damage.
                     receiver.deal_damage(resolving_weapon.normal_damage)
