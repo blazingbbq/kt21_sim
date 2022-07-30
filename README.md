@@ -1,5 +1,7 @@
 # kt21_sim
 
+<img width="1388" alt="kt21sim_preview" src="https://user-images.githubusercontent.com/7542789/181994964-3c03d4fa-bdca-45f6-b669-d9db398faed0.png">
+
 ## Running
 
 Run using:
